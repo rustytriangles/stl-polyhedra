@@ -59,6 +59,7 @@ fn main() {
     poly_fcns.insert("icosahedron".to_string(), poly::icosahedron);
     poly_fcns.insert("dodecahedron".to_string(), poly::dodecahedron);
     poly_fcns.insert("rhombic_dodecahedron".to_string(), poly::rhombic_dodecahedron);
+    poly_fcns.insert("rhombic_triacontahedron".to_string(), poly::rhombic_triacontahedron);
 
     let name = &args[1];
 

@@ -91,7 +91,7 @@ pub fn icosahedron() -> Vec<Vec<[f64; 3]>> {
 }
 
 pub fn dodecahedron() -> Vec<Vec<[f64; 3]>> {
-    let p = (1. + (5 as f64).sqrt()) / 2.;
+    let p = (1. + (5. as f64).sqrt()) / 2.;
     let i = 1.0 / p;
 
     let v = [
@@ -163,6 +163,79 @@ pub fn rhombic_dodecahedron() -> Vec<Vec<[f64; 3]>> {
     ].to_vec()
 }
 
+pub fn rhombic_triacontahedron() -> Vec<Vec<[f64; 3]>> {
+    let s5 = (5. as f64).sqrt();
+    let c0 = s5 / 4.;
+    let c1 = (5. + s5) / 8.;
+    let c2 = (5. + 3. * s5)/ 8.;
+
+    let v = [
+	[ c1, 0., c2],
+	[ c1, 0.,-c2],
+	[-c1, 0., c2],
+	[-c1, 0.,-c2],
+	[ c2, c1, 0.],
+	[ c2,-c1, 0.],
+	[-c2, c1, 0.],
+	[-c2,-c1, 0.],
+	[ 0., c2, c1],
+	[ 0., c2,-c1],
+	[ 0.,-c2, c1],
+	[ 0.,-c2,-c1],
+	[ 0., c0, c2],
+	[ 0., c0,-c2],
+	[ 0.,-c0, c2],
+	[ 0.,-c0,-c2],
+	[ c2, 0., c0],
+	[ c2, 0.,-c0],
+	[-c2, 0., c0],
+	[-c2, 0.,-c0],
+	[ c0, c2, 0.],
+	[ c0,-c2, 0.],
+	[-c0, c2, 0.],
+	[-c0,-c2, 0.],
+	[ c1, c1, c1],
+	[ c1, c1,-c1],
+	[ c1,-c1, c1],
+	[ c1,-c1,-c1],
+	[-c1, c1, c1],
+	[-c1, c1,-c1],
+	[-c1,-c1, c1],
+	[-c1,-c1,-c1] ];
+
+    [ vec![v[ 0], v[12], v[ 2], v[14] ],
+      vec![v[ 0], v[14], v[10], v[26] ],
+      vec![v[ 0], v[26], v[ 5], v[16] ],
+      vec![v[ 1], v[13], v[ 9], v[25] ],
+      vec![v[ 1], v[25], v[ 4], v[17] ],
+      vec![v[ 1], v[17], v[ 5], v[27] ],
+      vec![v[ 2], v[28], v[ 6], v[18] ],
+      vec![v[ 2], v[18], v[ 7], v[30] ],
+      vec![v[ 2], v[30], v[10], v[14] ],
+      vec![v[ 3], v[19], v[ 6], v[29] ],
+      vec![v[ 3], v[29], v[ 9], v[13] ],
+      vec![v[ 3], v[13], v[ 1], v[15] ],
+      vec![v[ 4], v[20], v[ 8], v[24] ],
+      vec![v[ 4], v[24], v[ 0], v[16] ],
+      vec![v[ 4], v[16], v[ 5], v[17] ],
+      vec![v[ 7], v[18], v[ 6], v[19] ],
+      vec![v[ 7], v[19], v[ 3], v[31] ],
+      vec![v[ 7], v[31], v[11], v[23] ],
+      vec![v[ 8], v[22], v[ 6], v[28] ],
+      vec![v[ 8], v[28], v[ 2], v[12] ],
+      vec![v[ 8], v[12], v[ 0], v[24] ],
+      vec![v[ 9], v[29], v[ 6], v[22] ],
+      vec![v[ 9], v[22], v[ 8], v[20] ],
+      vec![v[ 9], v[20], v[ 4], v[25] ],
+      vec![v[10], v[30], v[ 7], v[23] ],
+      vec![v[10], v[23], v[11], v[21] ],
+      vec![v[10], v[21], v[ 5], v[26] ],
+      vec![v[11], v[31], v[ 3], v[15] ],
+      vec![v[11], v[15], v[ 1], v[27] ],
+      vec![v[11], v[27], v[ 5], v[21] ],
+    ].to_vec()
+}
+
 pub fn triangulate(src: &Vec<[f64; 3]>) -> Vec<[f64; 3]> {
     let n = src.len();
     if n == 3 {
@@ -170,7 +243,7 @@ pub fn triangulate(src: &Vec<[f64; 3]>) -> Vec<[f64; 3]> {
     } else if n > 3 {
 	let mut dst = Vec::new();
 
-	for i in (1..n-1) {
+	for i in 1..n-1 {
 	    let v0 = 0;
 	    let v1 = i;
 	    let v2 = i+1;
@@ -328,6 +401,26 @@ mod tests {
     #[test]
     fn test_rhombic_dodecahedron_orientation() {
 	let verts = rhombic_dodecahedron();
+	for p in verts {
+	    let c = centroid(&p);
+	    let n = normal(&p);
+	    assert!(dot(c,n) > 0.);
+	}
+    }
+
+    #[test]
+    // 30 polys with 4 sides each
+    fn test_rhombic_triacontahedron_size() {
+	let verts = rhombic_triacontahedron();
+	assert_eq!(verts.len(), 30);
+	for p in verts {
+	    assert_eq!(p.len(), 4);
+	}
+    }
+
+    #[test]
+    fn test_rhombic_triacontahedron_orientation() {
+	let verts = rhombic_triacontahedron();
 	for p in verts {
 	    let c = centroid(&p);
 	    let n = normal(&p);
