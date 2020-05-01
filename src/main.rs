@@ -53,13 +53,33 @@ fn main() {
 
     let mut poly_fcns: HashMap<String, fn() -> Vec<Vec<[f64;3]>>> = HashMap::new();
 
+    // Platonic
     poly_fcns.insert("tetrahedron".to_string(), poly::tetrahedron);
     poly_fcns.insert("cube".to_string(), poly::cube);
     poly_fcns.insert("octahedron".to_string(), poly::octahedron);
     poly_fcns.insert("icosahedron".to_string(), poly::icosahedron);
     poly_fcns.insert("dodecahedron".to_string(), poly::dodecahedron);
+
+    // Rhombic
     poly_fcns.insert("rhombic_dodecahedron".to_string(), poly::rhombic_dodecahedron);
     poly_fcns.insert("rhombic_triacontahedron".to_string(), poly::rhombic_triacontahedron);
+
+    // Archimeden
+    // truncated tetrahedron
+    // cuboctahedron
+    poly_fcns.insert("cuboctahedron".to_string(), poly::cuboctahedron);
+    // truncated cube
+    // truncated octahedron
+    // rhombicuboctahedron
+    poly_fcns.insert("rhombicuboctahedron".to_string(), poly::rhombicuboctahedron);
+    // truncated cuboctahedron
+    // snub cube (2?)
+    // icosidodecahedron
+    // truncated dodecahedron
+    // truncated icosahedron
+    // rhombicosidodecahedron
+    // truncated icosidodecahedron
+    // snub dodecahedron
 
     let name = &args[1];
 

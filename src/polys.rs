@@ -236,6 +236,137 @@ pub fn rhombic_triacontahedron() -> Vec<Vec<[f64; 3]>> {
     ].to_vec()
 }
 
+pub fn cuboctahedron() -> Vec<Vec<[f64; 3]>> {
+    let v = [
+	[-1.,-1., 0.],
+	[ 0.,-1., 1.],
+	[ 1.,-1., 0.],
+	[ 0.,-1.,-1.],
+	[-1., 0., 1.],
+	[ 1., 0., 1.],
+	[ 1., 0.,-1.],
+	[-1., 0.,-1.],
+	[ 0., 1., 1.],
+	[ 1., 1., 0.],
+	[ 0., 1.,-1.],
+	[-1., 1., 0.] ];
+
+    [ vec![v[ 1], v[ 5], v[ 8], v[ 4]],
+      vec![v[ 2], v[ 6], v[ 9], v[ 5]],
+      vec![v[ 3], v[ 7], v[10], v[ 6]],
+      vec![v[ 0], v[ 4], v[11], v[ 7]],
+      vec![v[ 8], v[ 9], v[10], v[11]],
+      vec![v[ 1], v[ 0], v[ 3], v[ 2]],
+      vec![v[ 5], v[ 9], v[ 8]],
+      vec![v[ 6], v[10], v[ 9]],
+      vec![v[ 7], v[11], v[10]],
+      vec![v[ 4], v[ 8], v[11]],
+      vec![v[ 5], v[ 1], v[ 2]],
+      vec![v[ 6], v[ 2], v[ 3]],
+      vec![v[ 7], v[ 3], v[ 0]],
+      vec![v[ 4], v[ 0], v[ 1]],
+    ].to_vec()
+}
+
+pub fn rhombicuboctahedron() -> Vec<Vec<[f64; 3]>> {
+    let q = 1. + (2. as f64).sqrt();
+    let v = [
+	[-q ,-1.,-1.], // v0
+	[-q , 1.,-1.],
+	[-q ,-1., 1.],
+	[-q , 1., 1.],
+	[-1.,-1.,-q ], // v4
+	[-1., 1.,-q ],
+	[-1.,-q ,-1.],
+	[-1., q ,-1.],
+	[-1.,-q , 1.],
+	[-1., q , 1.],
+	[-1.,-1., q ],
+	[-1., 1., q ],
+	[ 1.,-1.,-q ], // v12
+	[ 1., 1.,-q ],
+	[ 1.,-q ,-1.],
+	[ 1., q ,-1.],
+	[ 1.,-q , 1.],
+	[ 1., q , 1.],
+	[ 1.,-1., q ],
+	[ 1., 1., q ],
+	[ q ,-1.,-1.], // v20
+	[ q , 1.,-1.],
+	[ q ,-1., 1.],
+	[ q , 1., 1.],
+    ];
+
+    [vec![v[ 0], v[ 2], v[ 3], v[ 1]],
+     vec![v[10], v[18], v[19], v[11]],
+     vec![v[22], v[20], v[21], v[23]],
+     vec![v[12], v[ 4], v[ 5], v[13]],
+     vec![v[ 9], v[17], v[15], v[ 7]],
+     vec![v[ 8], v[ 6], v[14], v[16]],
+     vec![v[ 1], v[ 3], v[ 9], v[ 7]],
+     vec![v[11], v[19], v[17], v[ 9]],
+     vec![v[23], v[21], v[15], v[17]],
+     vec![v[13], v[ 5], v[ 7], v[15]],
+     vec![v[ 0], v[ 1], v[ 5], v[ 4]],
+     vec![v[10], v[11], v[ 3], v[ 2]],
+     vec![v[22], v[23], v[19], v[18]],
+     vec![v[12], v[13], v[21], v[20]],
+     vec![v[ 0], v[ 6], v[ 8], v[ 2]],
+     vec![v[10], v[ 8], v[16], v[18]],
+     vec![v[22], v[16], v[14], v[20]],
+     vec![v[12], v[14], v[ 6], v[ 4]],
+     vec![v[19], v[23], v[17]],
+     vec![v[21], v[13], v[15]],
+     vec![v[ 5], v[ 1], v[ 7]],
+     vec![v[ 3], v[11], v[ 9]],
+     vec![v[ 6], v[ 0], v[ 4]],
+     vec![v[ 8], v[10], v[ 2]],
+     vec![v[16], v[22], v[18]],
+     vec![v[14], v[12], v[20]],
+     
+    ].to_vec()
+}
+
+// pub fn rhombicuboctahedron() -> Vec<Vec<[f64; 3]>> {
+//     let q = 1. + (2. as f64).sqrt();
+
+//     let v = [
+// 	[-1.,-q ,-q ],
+// 	[-q ,-q ,-1.],
+// 	[-q ,-q , 1.],
+// 	[-1.,-q , q ],
+// 	[ 1.,-q , q ],
+// 	[ q ,-q , 1.],
+// 	[ q ,-q ,-1.],
+// 	[ 1.,-q ,-q ],
+
+// 	[-q ,-1.,-q ],
+// 	[-q ,-1., q ],
+// 	[ q ,-1., q ],
+// 	[ q ,-1.,-q ],
+// 	[-q , 1.,-q ],
+// 	[-q , 1., q ],
+// 	[ q , 1., q ],
+// 	[ q , 1.,-q ],
+
+// 	[-1., q ,-q ],
+// 	[-q , q ,-1.],
+// 	[-q , q , 1.],
+// 	[-1., q , q ],
+// 	[ 1., q , q ],
+// 	[ q , q , 1.],
+// 	[ q , q ,-1.],
+// 	[ 1., q ,-q ] ];
+
+//     [ vec![v[ 7], v[ 6], v[ 5], v[ 4], v[ 3], v[ 2], v[ 1], v[ 0]],
+//       vec![v[ 1], v[ 2], v[ 9], v[13], v[18], v[17], v[12], v[ 8]],
+//       vec![v[ 3], v[ 4], v[10], v[14], v[20], v[19], v[13], v[ 9]],
+//       vec![v[ 5], v[ 6], v[11], v[15], v[22], v[21], v[14], v[10]],
+//       vec![v[ 7], v[ 0], v[ 8], v[12], v[16], v[23], v[15], v[11]],
+//       vec![v[16], v[17], v[18], v[19], v[20], v[21], v[22], v[23]],
+//     ].to_vec()
+// }
+
 pub fn triangulate(src: &Vec<[f64; 3]>) -> Vec<[f64; 3]> {
     let n = src.len();
     if n == 3 {
@@ -421,6 +552,64 @@ mod tests {
     #[test]
     fn test_rhombic_triacontahedron_orientation() {
 	let verts = rhombic_triacontahedron();
+	for p in verts {
+	    let c = centroid(&p);
+	    let n = normal(&p);
+	    assert!(dot(c,n) > 0.);
+	}
+    }
+
+    #[test]
+    // 14 polys. 8 with 3 sides, and 6 with 4 sides.
+    fn test_cuboctahedron_size() {
+	let verts = cuboctahedron();
+	assert_eq!(verts.len(), 14);
+
+	let mut num_squares = 0;
+	let mut num_tris = 0;
+	for p in verts {
+	    match p.len() {
+		4 => { num_squares += 1 }
+		3 => { num_tris += 1 }
+		_ => { assert!(false) }
+	    }
+	}
+	assert!(num_squares == 6);
+	assert!(num_tris == 8);
+    }
+
+    #[test]
+    fn test_cuboctahedron_orientation() {
+	let verts = cuboctahedron();
+	for p in verts {
+	    let c = centroid(&p);
+	    let n = normal(&p);
+	    assert!(dot(c,n) > 0.);
+	}
+    }
+
+    #[test]
+    // 26 polys. 8 with 3 sides, and 18 with 4 sides.
+    fn test_rhombicuboctahedron_size() {
+	let verts = rhombicuboctahedron();
+	assert_eq!(verts.len(), 26);
+
+	let mut num_squares = 0;
+	let mut num_tris = 0;
+	for p in verts {
+	    match p.len() {
+		4 => { num_squares += 1 }
+		3 => { num_tris += 1 }
+		_ => { assert!(false) }
+	    }
+	}
+	assert!(num_squares == 18);
+	assert!(num_tris == 8);
+    }
+
+    #[test]
+    fn test_rhombicuboctahedron_orientation() {
+	let verts = rhombicuboctahedron();
 	for p in verts {
 	    let c = centroid(&p);
 	    let n = normal(&p);
