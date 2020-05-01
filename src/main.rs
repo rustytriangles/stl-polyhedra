@@ -5,99 +5,8 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-mod poly {
-    pub fn tetrahedron() -> Vec<Vec<[f64; 3]>> {
-	[ vec![[-1.,-1.,-1.],
-	       [ 1., 1.,-1.],
-	       [-1., 1., 1.] ],
-	  vec![[-1.,-1.,-1.],
-	       [ 1.,-1., 1.],
-	       [ 1., 1.,-1.] ],
-	  vec![[ 1.,-1., 1.],
-	       [-1., 1., 1.],
-	       [ 1., 1.,-1.] ],
-	  vec![[ 1.,-1., 1.],
-	       [-1.,-1.,-1.],
-	       [-1., 1., 1.] ],
-	].to_vec()
-    }
-
-    pub fn cube() -> Vec<Vec<[f64; 3]>> {
-	[ vec![[-1.,-1., 1.],
-	       [ 1.,-1., 1.],
-	       [ 1., 1., 1.],
-	       [-1., 1., 1.] ],
-	  vec![[ 1.,-1., 1.],
-	       [ 1.,-1.,-1.],
-	       [ 1., 1.,-1.],
-	       [ 1., 1., 1.] ],
-	  vec![[ 1.,-1.,-1.],
-	       [-1.,-1.,-1.],
-	       [-1., 1.,-1.],
-	       [ 1., 1.,-1.] ],
-	  vec![[-1.,-1.,-1.],
-	       [-1.,-1., 1.],
-	       [-1., 1., 1.],
-	       [-1., 1.,-1.] ],
-	  vec![[-1., 1., 1.],
-	       [ 1., 1., 1.],
-	       [ 1., 1.,-1.],
-	       [-1., 1.,-1.] ],
-	  vec![[-1.,-1.,-1.],
-	       [ 1.,-1.,-1.],
-	       [ 1.,-1., 1.],
-	       [-1.,-1., 1.] ],
-	].to_vec()
-    }
-
-    pub fn triangulate(src: &Vec<[f64; 3]>) -> Vec<[f64; 3]> {
-	let n = src.len();
-	if n == 3 {
-	    src.to_vec()
-	} else if n > 3 {
-	    let mut dst = Vec::new();
-
-	    for i in (0..n).step_by(2) {
-		let v0 = i;
-		let v1 = i+1;
-		let v2 = src.len() - i - 1;
-		dst.push(src[v0]);
-		dst.push(src[v1]);
-		dst.push(src[v2]);
-	    }
-
-	    dst
-	} else {
-	    panic!("Bad polygon");
-	}
-    }
-
-    #[cfg(test)]
-    mod tests {
-	use super::*;
-
-	#[test]
-	// 4 polys with 3 sides each
-	fn test_tetrahedron_size() {
-	    let verts = tetrahedron();
-	    assert_eq!(verts.len(), 4);
-	    for p in verts {
-		assert_eq!(p.len(), 3);
-	    }
-	}
-
-	#[test]
-	// 6 polys with 4 sides each
-	fn test_cube_size() {
-	    let verts = cube();
-	    assert_eq!(verts.len(), 6);
-	    for p in verts {
-		assert_eq!(p.len(), 4);
-	    }
-	}
-
-    }
-}
+#[path = "polys.rs"]
+mod poly;
 
 mod stl {
     use super::*;
@@ -119,9 +28,9 @@ mod stl {
 	for p in polys {
 	    let t = poly::triangulate(&p);
 
-	    file.write_all(b"facet normal 0 0 1\n");
+	    file.write_all(b"facet normal 0 0 1\n")?;
 	    for i in (0..t.len()).step_by(3) {
-		file.write_all(b" outer loop\n");
+		file.write_all(b" outer loop\n")?;
 		for j in 0..3 {
 		    let v = format!("  vertex {0} {1} {2}\n",
 				    t[i+j][0],
@@ -142,14 +51,14 @@ mod stl {
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    for i in 0..args.len() {
-        println!("Hello, {:?}!", args[i]);
-    }
-
     let mut poly_fcns: HashMap<String, fn() -> Vec<Vec<[f64;3]>>> = HashMap::new();
 
     poly_fcns.insert("tetrahedron".to_string(), poly::tetrahedron);
     poly_fcns.insert("cube".to_string(), poly::cube);
+    poly_fcns.insert("octahedron".to_string(), poly::octahedron);
+    poly_fcns.insert("icosahedron".to_string(), poly::icosahedron);
+    poly_fcns.insert("dodecahedron".to_string(), poly::dodecahedron);
+    poly_fcns.insert("rhombic_dodecahedron".to_string(), poly::rhombic_dodecahedron);
 
     let name = &args[1];
 
@@ -160,9 +69,10 @@ fn main() {
 	    verts = fcn();
 	}
 	_ => {
+	    println!("Unrecognized polyhedron: {}", name);
 	}
     };
 
     let filename = "foo.stl".to_string();
-    stl::write_ascii(verts, &filename, name);
+    let _ = stl::write_ascii(verts, &filename, name);
 }
