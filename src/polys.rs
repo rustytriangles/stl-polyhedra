@@ -336,7 +336,7 @@ pub fn truncated_cube() -> Vec<Vec<[f64; 3]>> {
     let edgelen_scale = 3. * (2. as f64).sqrt() / 2.;
 
     let (v, p) = generate_cube_mesh(edgelen_scale, SizeMode::EDGELEN);
-//    let (v, p) = generate_tetrahedron_mesh(radius_scale, SizeMode::RADIUS);
+//    let (v, p) = generate_cube_mesh(radius_scale, SizeMode::RADIUS);
 
     let s = (2. as f64).sqrt();
     let t1 = s / (2. + s + s);
@@ -365,15 +365,53 @@ pub fn truncated_cube() -> Vec<Vec<[f64; 3]>> {
 	[1, 7, 4],
 	[2, 4, 7],
 	[3, 6, 5],
-    // 	[2, 3, 0],
-    // 	[3, 1, 0],
-	// 	[0, 1, 2]
     ];
     for i in 0..corners.len() {
 	let mut tri = Vec::new();
 	tri.push(lerp(v[i],v[corners[i][0]],t1));
 	tri.push(lerp(v[i],v[corners[i][1]],t1));
 	tri.push(lerp(v[i],v[corners[i][2]],t1));
+	ret.push(tri);
+    }
+    ret
+}
+
+pub fn truncated_octahedron() -> Vec<Vec<[f64; 3]>> {
+    let _radius_scale = 2. / (3. as f64).sqrt();
+    let edgelen_scale = 3. * (2. as f64).sqrt() / 2.;
+
+    let (v, p) = generate_octahedron_mesh(edgelen_scale, SizeMode::EDGELEN);
+//    let (v, p) = generate_octahedron_mesh(radius_scale, SizeMode::RADIUS);
+
+    let s = (2. as f64).sqrt();
+    let t1 = 1. / 3.;
+    let t2 = 1. - t1;
+    let mut ret = Vec::new();
+    for l in p {
+	let mut hex = Vec::new();
+	hex.push(lerp(v[l[0]], v[l[1]], t1));
+	hex.push(lerp(v[l[0]], v[l[1]], t2));
+	hex.push(lerp(v[l[1]], v[l[2]], t1));
+	hex.push(lerp(v[l[1]], v[l[2]], t2));
+	hex.push(lerp(v[l[2]], v[l[0]], t1));
+	hex.push(lerp(v[l[2]], v[l[0]], t2));
+	ret.push(hex);
+    }
+
+    let corners = [
+     	[5, 3, 4, 2],
+     	[2, 4, 3, 5],
+	[0, 4, 1, 5],
+	[5, 1, 4, 0],
+	[3, 1, 2, 0],
+	[0, 2, 1, 3],
+    ];
+    for i in 0..corners.len() {
+	let mut tri = Vec::new();
+	tri.push(lerp(v[i],v[corners[i][0]],t1));
+	tri.push(lerp(v[i],v[corners[i][1]],t1));
+	tri.push(lerp(v[i],v[corners[i][2]],t1));
+	tri.push(lerp(v[i],v[corners[i][3]],t1));
 	ret.push(tri);
     }
     ret
@@ -439,46 +477,6 @@ pub fn rhombicuboctahedron() -> Vec<Vec<[f64; 3]>> {
 
     ].to_vec()
 }
-
-// pub fn rhombicuboctahedron() -> Vec<Vec<[f64; 3]>> {
-//     let q = 1. + (2. as f64).sqrt();
-
-//     let v = [
-//      [-1.,-q ,-q ],
-//      [-q ,-q ,-1.],
-//      [-q ,-q , 1.],
-//      [-1.,-q , q ],
-//      [ 1.,-q , q ],
-//      [ q ,-q , 1.],
-//      [ q ,-q ,-1.],
-//      [ 1.,-q ,-q ],
-
-//      [-q ,-1.,-q ],
-//      [-q ,-1., q ],
-//      [ q ,-1., q ],
-//      [ q ,-1.,-q ],
-//      [-q , 1.,-q ],
-//      [-q , 1., q ],
-//      [ q , 1., q ],
-//      [ q , 1.,-q ],
-
-//      [-1., q ,-q ],
-//      [-q , q ,-1.],
-//      [-q , q , 1.],
-//      [-1., q , q ],
-//      [ 1., q , q ],
-//      [ q , q , 1.],
-//      [ q , q ,-1.],
-//      [ 1., q ,-q ] ];
-
-//     [ vec![v[ 7], v[ 6], v[ 5], v[ 4], v[ 3], v[ 2], v[ 1], v[ 0]],
-//       vec![v[ 1], v[ 2], v[ 9], v[13], v[18], v[17], v[12], v[ 8]],
-//       vec![v[ 3], v[ 4], v[10], v[14], v[20], v[19], v[13], v[ 9]],
-//       vec![v[ 5], v[ 6], v[11], v[15], v[22], v[21], v[14], v[10]],
-//       vec![v[ 7], v[ 0], v[ 8], v[12], v[16], v[23], v[15], v[11]],
-//       vec![v[16], v[17], v[18], v[19], v[20], v[21], v[22], v[23]],
-//     ].to_vec()
-// }
 
 pub fn triangulate(src: &Vec<[f64; 3]>) -> Vec<[f64; 3]> {
     let n = src.len();
@@ -848,6 +846,51 @@ mod tests {
         let verts = truncated_cube();
         let r = radii(&verts);
 	let expected = 1.5630161498399613;
+        assert_abs_diff_eq!(r[0], expected);
+        assert_abs_diff_eq!(r[1], expected);
+    }
+
+    #[test]
+    fn test_truncated_octahedron_size() {
+        let verts = truncated_octahedron();
+        assert_eq!(verts.len(), 14);
+        let mut num_hexes = 0;
+        let mut num_squares = 0;
+        for p in verts {
+            match p.len() {
+                6 => { num_hexes += 1 }
+                4 => { num_squares += 1 }
+                _ => { assert!(false) }
+            }
+        }
+        assert!(num_hexes == 8);
+        assert!(num_squares == 6);
+    }
+
+    #[test]
+    fn test_truncated_octahedron_orientation() {
+        let verts = truncated_octahedron();
+        for p in verts {
+            let c = centroid(&p);
+            let n = normal(&p);
+	    assert!(dot(c,n) > 0.);
+        }
+    }
+
+    #[test]
+    fn test_truncated_octahedron_edgelength() {
+        let verts = truncated_octahedron();
+        let r = edge_lengths(&verts);
+	let expected = 0.5;
+        assert_abs_diff_eq!(r[0], expected);
+        assert_abs_diff_eq!(r[1], expected);
+    }
+
+    #[test]
+    fn test_truncated_truncated_octahedron_radii() {
+        let verts = truncated_octahedron();
+        let r = radii(&verts);
+	let expected = 0.790569415042095;
         assert_abs_diff_eq!(r[0], expected);
         assert_abs_diff_eq!(r[1], expected);
     }
