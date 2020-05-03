@@ -67,10 +67,9 @@ fn build_function_table() -> HashMap<String, fn() -> Vec<Vec<[f64;3]>>> {
     poly_fcns.insert("rhombic_triacontahedron".to_string(), poly::rhombic_triacontahedron);
 
     // Archimeden
-    // truncated tetrahedron
-    // cuboctahedron
+    poly_fcns.insert("truncated_tetrahedron".to_string(), poly::truncated_tetrahedron);
     poly_fcns.insert("cuboctahedron".to_string(), poly::cuboctahedron);
-    // truncated cube
+    poly_fcns.insert("truncated_cube".to_string(), poly::truncated_cube);
     // truncated octahedron
     // rhombicuboctahedron
     poly_fcns.insert("rhombicuboctahedron".to_string(), poly::rhombicuboctahedron);

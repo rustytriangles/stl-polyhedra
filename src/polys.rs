@@ -1,63 +1,65 @@
+enum SizeMode {
+    EDGELEN,
+    RADIUS
+}
+
 pub fn tetrahedron() -> Vec<Vec<[f64; 3]>> {
-    // edge length = 2. * (2. as f64).sqrt();
-    let s = 0.5 / (2. as f64).sqrt();
-    let v = [
-        [-s,-s,-s],
-        [-s, s, s],
-        [ s, s,-s],
-        [ s,-s, s] ];
-    [ vec![v[0], v[1], v[2] ],
-      vec![v[0], v[2], v[3] ],
-      vec![v[3], v[2], v[1] ],
-      vec![v[3], v[1], v[0] ],
-    ].to_vec()
+    let _radius_scale = 2. / (3. as f64).sqrt();
+    let edgelen_scale = (2. as f64).sqrt() / 2.;
+
+    let (v, p) = generate_tetrahedron_mesh(edgelen_scale, SizeMode::EDGELEN);
+//    let (v, p) = generate_tetrahedron_mesh(radius_scale, SizeMode::RADIUS);
+
+    let mut ret = Vec::new();
+    for i in p {
+	let mut tmp = Vec::new();
+	for j in i {
+	    tmp.push(v[j]);
+	}
+	ret.push(tmp);
+    }
+    ret
 }
 
 pub fn cube() -> Vec<Vec<[f64; 3]>> {
-    // edge length = 2.
-    let s = 0.5;
-    let v = [
-        [-s,-s,-s],
-        [ s,-s,-s],
-        [-s, s,-s],
-        [ s, s,-s],
-        [-s,-s, s],
-        [ s,-s, s],
-        [-s, s, s],
-        [ s, s, s] ];
-    [ vec![v[4], v[5], v[7], v[6] ],
-      vec![v[5], v[1], v[3], v[7] ],
-      vec![v[1], v[0], v[2], v[3] ],
-      vec![v[0], v[4], v[6], v[2] ],
-      vec![v[6], v[7], v[3], v[2] ],
-      vec![v[0], v[1], v[5], v[4] ],
-    ].to_vec()
+    let _radius_scale = 2. / (3. as f64).sqrt();
+    let edgelen_scale = 1.;
+
+    let (v, p) = generate_cube_mesh(edgelen_scale, SizeMode::EDGELEN);
+//    let (v, p) = generate_cube_mesh(radius_scale, SizeMode::RADIUS);
+
+    let mut ret = Vec::new();
+    for i in p {
+	let mut tmp = Vec::new();
+	for j in i {
+	    tmp.push(v[j]);
+	}
+	ret.push(tmp);
+    }
+    ret
 }
 
 pub fn octahedron() -> Vec<Vec<[f64; 3]>> {
-    // edge length = (2. as f64).sqrt()
-    let s = 1. / (2. as f64).sqrt();
-    let v = [
-        [-s,0.,0.],
-        [ s,0.,0.],
-        [0.,-s,0.],
-        [0., s,0.],
-        [0.,0.,-s],
-        [0.,0., s] ];
+    let _radius_scale = 2.;
+    let edgelen_scale = (2. as f64).sqrt();
 
-    [ vec![v[2], v[1], v[5] ],
-      vec![v[2], v[4], v[1] ],
-      vec![v[2], v[0], v[4] ],
-      vec![v[2], v[5], v[0] ],
-      vec![v[1], v[3], v[5] ],
-      vec![v[5], v[3], v[0] ],
-      vec![v[0], v[3], v[4] ],
-      vec![v[4], v[3], v[1] ],
-    ].to_vec()
+    let (v, p) = generate_octahedron_mesh(edgelen_scale, SizeMode::EDGELEN);
+//    let (v, p) = generate_octahedron_mesh(radius_scale, SizeMode::RADIUS);
+
+    let mut ret = Vec::new();
+    for i in p {
+	let mut tmp = Vec::new();
+	for j in i {
+	    tmp.push(v[j]);
+	}
+	ret.push(tmp);
+    }
+    ret
 }
 
 pub fn icosahedron() -> Vec<Vec<[f64; 3]>> {
     // edge length = 2.
+    let _radius_edgelen_ratio = 0.9510565162951535;
     let r = 0.5;
     let p = (1. + (5 as f64).sqrt()) / 4.;
     let v = [
@@ -100,6 +102,7 @@ pub fn icosahedron() -> Vec<Vec<[f64; 3]>> {
 pub fn dodecahedron() -> Vec<Vec<[f64; 3]>> {
     // @todo clean this up
     // edge length = (5. as f64).sqrt() - 1.
+    let _radius_edgelen_ratio = 1.4012585384440734;
     let p = (1. + (5. as f64).sqrt()) / 2.;
     let i = 1.0 / p;
 
@@ -148,6 +151,7 @@ pub fn dodecahedron() -> Vec<Vec<[f64; 3]>> {
 
 pub fn rhombic_dodecahedron() -> Vec<Vec<[f64; 3]>> {
     // edge length = (3. as f64).sqrt() / 2.
+    let _radius_edgelen_ratio = 1.1547005383792517;
     let r = 2. / (3. as f64).sqrt();
     let p = r / 2.;
     let v = [
@@ -183,6 +187,7 @@ pub fn rhombic_dodecahedron() -> Vec<Vec<[f64; 3]>> {
 pub fn rhombic_triacontahedron() -> Vec<Vec<[f64; 3]>> {
     // @todo fix this
     // edge length = 1.06331351044005;
+    let _radius_edgelen_ratio = ((5. as f64).sqrt() + 1.) / 2.;
     // i.e.(c0*c0 + c1*c1).sqrt();
     let s5 = (5. as f64).sqrt();
     let c0 = s5 / 4.;
@@ -257,7 +262,43 @@ pub fn rhombic_triacontahedron() -> Vec<Vec<[f64; 3]>> {
     ].to_vec()
 }
 
+pub fn truncated_tetrahedron() -> Vec<Vec<[f64; 3]>> {
+    let _radius_scale = 2. / (3. as f64).sqrt();
+    let edgelen_scale = 3. * (2. as f64).sqrt() / 2.;
+
+    let (v, p) = generate_tetrahedron_mesh(edgelen_scale, SizeMode::EDGELEN);
+//    let (v, p) = generate_tetrahedron_mesh(radius_scale, SizeMode::RADIUS);
+
+    let mut ret = Vec::new();
+    for l in p {
+	let mut hex = Vec::new();
+	hex.push(lerp(v[l[0]], v[l[1]], 1. / 3.));
+	hex.push(lerp(v[l[0]], v[l[1]], 2. / 3.));
+	hex.push(lerp(v[l[1]], v[l[2]], 1. / 3.));
+	hex.push(lerp(v[l[1]], v[l[2]], 2. / 3.));
+	hex.push(lerp(v[l[2]], v[l[0]], 1. / 3.));
+	hex.push(lerp(v[l[2]], v[l[0]], 2. / 3.));
+	ret.push(hex);
+    }
+
+    // order of the edges for the tri at each corner
+    let corners = [
+	[1, 3, 2],
+	[2, 3, 0],
+	[3, 1, 0],
+	[0, 1, 2] ];
+    for i in 0..4 {
+    	let mut tri = Vec::new();
+    	tri.push(lerp(v[i],v[corners[i][0]],1./3.));
+    	tri.push(lerp(v[i],v[corners[i][1]],1./3.));
+    	tri.push(lerp(v[i],v[corners[i][2]],1./3.));
+    	ret.push(tri);
+    }
+    ret
+}
+
 pub fn cuboctahedron() -> Vec<Vec<[f64; 3]>> {
+    let _radius_edgelen_ratio = 1.;
     let p = 1. / (2. as f64).sqrt();
     let v = [
         [-p,-p,0.],
@@ -290,7 +331,56 @@ pub fn cuboctahedron() -> Vec<Vec<[f64; 3]>> {
     ].to_vec()
 }
 
+pub fn truncated_cube() -> Vec<Vec<[f64; 3]>> {
+    let _radius_scale = 2. / (3. as f64).sqrt();
+    let edgelen_scale = 3. * (2. as f64).sqrt() / 2.;
+
+    let (v, p) = generate_cube_mesh(edgelen_scale, SizeMode::EDGELEN);
+//    let (v, p) = generate_tetrahedron_mesh(radius_scale, SizeMode::RADIUS);
+
+    let s = (2. as f64).sqrt();
+    let t1 = s / (2. + s + s);
+    let t2 = 1. - t1;
+    let mut ret = Vec::new();
+    for l in p {
+	let mut oct = Vec::new();
+	oct.push(lerp(v[l[0]], v[l[1]], t1));
+	oct.push(lerp(v[l[0]], v[l[1]], t2));
+	oct.push(lerp(v[l[1]], v[l[2]], t1));
+	oct.push(lerp(v[l[1]], v[l[2]], t2));
+	oct.push(lerp(v[l[2]], v[l[3]], t1));
+	oct.push(lerp(v[l[2]], v[l[3]], t2));
+	oct.push(lerp(v[l[3]], v[l[0]], t1));
+	oct.push(lerp(v[l[3]], v[l[0]], t2));
+	ret.push(oct);
+    }
+
+    // order of the edges for the tri at each corner
+    let corners = [
+     	[1, 4, 2],
+	[0, 3, 5],
+	[0, 6, 3],
+	[1, 2, 7],
+	[0, 5, 6],
+	[1, 7, 4],
+	[2, 4, 7],
+	[3, 6, 5],
+    // 	[2, 3, 0],
+    // 	[3, 1, 0],
+	// 	[0, 1, 2]
+    ];
+    for i in 0..corners.len() {
+	let mut tri = Vec::new();
+	tri.push(lerp(v[i],v[corners[i][0]],t1));
+	tri.push(lerp(v[i],v[corners[i][1]],t1));
+	tri.push(lerp(v[i],v[corners[i][2]],t1));
+	ret.push(tri);
+    }
+    ret
+}
+
 pub fn rhombicuboctahedron() -> Vec<Vec<[f64; 3]>> {
+    let _radius_edgelen_ratio = 1.3989663259659066;
     let q = (1. + (2. as f64).sqrt()) / 2.;
     let r = 0.5;
     let v = [
@@ -431,6 +521,20 @@ fn edge_lengths(src: &Vec<Vec<[f64; 3]>>) -> [f64; 2] {
     [min, max]
 }
 
+fn radii(src: &Vec<Vec<[f64; 3]>>) -> [f64; 2] {
+    let mut min = 1000. as f64;
+    let mut max = -1000. as f64;
+
+    for p in src {
+	for v in p {
+            let d = (v[0]*v[0] + v[1]*v[1] + v[2]*v[2]).sqrt();
+            min = min.min(d);
+            max = max.max(d);
+        }
+    }
+    [min, max]
+}
+
 fn centroid(src: &Vec<[f64; 3]>) -> [f64; 3] {
     let mut c = cgmath::Vector3::new(0.,0.,0.);
 
@@ -455,6 +559,12 @@ fn normal(src: &Vec<[f64; 3]>) -> [f64; 3] {
 
 fn dot(a: [f64; 3], b: [f64; 3]) -> f64 {
     a[0]*b[0] + a[1]*b[1] + a[2]*b[2]
+}
+
+fn lerp(a: [f64; 3], b: [f64; 3], t: f64) -> [f64; 3] {
+    [(1.-t)*a[0] + t*b[0],
+     (1.-t)*a[1] + t*b[1],
+     (1.-t)*a[2] + t*b[2]]
 }
 
 #[cfg(test)]
@@ -485,8 +595,19 @@ mod tests {
     fn test_tetrahedron_edgelength() {
         let verts = tetrahedron();
         let r = edge_lengths(&verts);
-        assert_abs_diff_eq!(r[0], 1.);
-        assert_abs_diff_eq!(r[1], 1.);
+//	let expected = (2. as f64).sqrt();
+	let expected = 1.;
+        assert_abs_diff_eq!(r[0], expected);
+        assert_abs_diff_eq!(r[1], expected);
+    }
+
+    #[test]
+    fn test_tetrahedron_radii() {
+        let verts = tetrahedron();
+        let r = radii(&verts);
+	let expected = 0.6123724356957945;
+        assert_abs_diff_eq!(r[0], expected);
+        assert_abs_diff_eq!(r[1], expected);
     }
 
     #[test]
@@ -518,6 +639,15 @@ mod tests {
     }
 
     #[test]
+    fn test_cube_radii() {
+        let verts = cube();
+        let r = radii(&verts);
+	let expected = (3. as f64).sqrt() / 2.;
+        assert_abs_diff_eq!(r[0], expected);
+        assert_abs_diff_eq!(r[1], expected);
+    }
+
+    #[test]
     // 8 polys with 3 sides each
     fn test_octahedron_size() {
         let verts = octahedron();
@@ -541,8 +671,19 @@ mod tests {
     fn test_octahedron_edgelength() {
         let verts = octahedron();
         let r = edge_lengths(&verts);
-        assert_abs_diff_eq!(r[0], 1.);
-        assert_abs_diff_eq!(r[1], 1.);
+//	let expected = (2. as f64).sqrt() / 2.;
+	let expected = 1.;
+        assert_abs_diff_eq!(r[0], expected);
+        assert_abs_diff_eq!(r[1], expected);
+    }
+
+    #[test]
+    fn test_octahedron_radii() {
+        let verts = octahedron();
+        let r = radii(&verts);
+	let expected = (2. as f64).sqrt() / 2.;
+        assert_abs_diff_eq!(r[0], expected);
+        assert_abs_diff_eq!(r[1], expected);
     }
 
     #[test]
@@ -574,6 +715,15 @@ mod tests {
     }
 
     #[test]
+    fn test_icosahedron_radii() {
+        let verts = icosahedron();
+        let r = radii(&verts);
+	let expected = 0.9510565162951535;
+        assert_abs_diff_eq!(r[0], expected);
+        assert_abs_diff_eq!(r[1], expected);
+    }
+
+    #[test]
     // 12 polys with 5 sides each
     fn test_dodecahedron_size() {
         let verts = dodecahedron();
@@ -599,6 +749,107 @@ mod tests {
         let r = edge_lengths(&verts);
         assert_abs_diff_eq!(r[0], 1.);
         assert_abs_diff_eq!(r[1], 1.);
+    }
+
+    #[test]
+    fn test_dodecahedron_radii() {
+        let verts = dodecahedron();
+        let r = radii(&verts);
+	let expected = 1.4012585384440734;
+        assert_abs_diff_eq!(r[0], expected);
+        assert_abs_diff_eq!(r[1], expected);
+    }
+
+    #[test]
+    // 8 polys. 4 with 3 sides, and 4 with 6 sides.
+    fn test_truncated_tetrahedron_size() {
+        let verts = truncated_tetrahedron();
+        assert_eq!(verts.len(), 8);
+        let mut num_hexes = 0;
+        let mut num_tris = 0;
+        for p in verts {
+            match p.len() {
+                6 => { num_hexes += 1 }
+                3 => { num_tris += 1 }
+                _ => { assert!(false) }
+            }
+        }
+        assert!(num_hexes == 4);
+        assert!(num_tris == 4);
+    }
+
+    #[test]
+    fn test_truncated_tetrahedron_orientation() {
+	// 3rd triangle is backwards
+        let verts = truncated_tetrahedron();
+        for p in verts {
+            let c = centroid(&p);
+            let n = normal(&p);
+	    assert!(dot(c,n) > 0.);
+        }
+    }
+
+    #[test]
+    fn test_truncated_tetrahedron_edgelength() {
+        let verts = truncated_tetrahedron();
+        let r = edge_lengths(&verts);
+        assert_abs_diff_eq!(r[0], 1.);
+        assert_abs_diff_eq!(r[1], 1.);
+    }
+
+    #[test]
+    fn test_truncated_tetrahedron_radii() {
+        let verts = truncated_tetrahedron();
+        let r = radii(&verts);
+	let expected = 1.1726039399558574;
+        assert_abs_diff_eq!(r[0], expected);
+        assert_abs_diff_eq!(r[1], expected);
+    }
+
+    #[test]
+    fn test_truncated_cube_size() {
+        let verts = truncated_cube();
+        assert_eq!(verts.len(), 14);
+        let mut num_octs = 0;
+        let mut num_tris = 0;
+        for p in verts {
+            match p.len() {
+                8 => { num_octs += 1 }
+                3 => { num_tris += 1 }
+                _ => { assert!(false) }
+            }
+        }
+        assert!(num_octs == 6);
+        assert!(num_tris == 8);
+    }
+
+    #[test]
+    fn test_truncated_cube_orientation() {
+        let verts = truncated_cube();
+        for p in verts {
+            let c = centroid(&p);
+            let n = normal(&p);
+	    assert!(dot(c,n) > 0.);
+        }
+    }
+
+    #[test]
+    fn test_truncated_cube_edgelength() {
+        let verts = truncated_cube();
+        let r = edge_lengths(&verts);
+	let expected = 0.8786796564403572;
+	let tol = 1.0e-15;
+        assert_abs_diff_eq!(r[0], expected, epsilon = tol);
+        assert_abs_diff_eq!(r[1], expected, epsilon = tol);
+    }
+
+    #[test]
+    fn test_truncated_truncated_cube_radii() {
+        let verts = truncated_cube();
+        let r = radii(&verts);
+	let expected = 1.5630161498399613;
+        assert_abs_diff_eq!(r[0], expected);
+        assert_abs_diff_eq!(r[1], expected);
     }
 
     #[test]
@@ -630,6 +881,14 @@ mod tests {
     }
 
     #[test]
+    fn test_rhombic_dodecahedron_radii() {
+        let verts = rhombic_dodecahedron();
+        let r = radii(&verts);
+        assert_abs_diff_eq!(r[0], 1.);
+        assert_abs_diff_eq!(r[1], 1.1547005383792517);
+    }
+
+    #[test]
     // 30 polys with 4 sides each
     fn test_rhombic_triacontahedron_size() {
         let verts = rhombic_triacontahedron();
@@ -655,6 +914,14 @@ mod tests {
         let r = edge_lengths(&verts);
         assert_abs_diff_eq!(r[0], 1.);
         assert_abs_diff_eq!(r[1], 1.);
+    }
+
+    #[test]
+    fn test_rhombic_triacontahedron_radii() {
+        let verts = rhombic_triacontahedron();
+        let r = radii(&verts);
+        assert_abs_diff_eq!(r[0], 1.4733704195652688);
+        assert_abs_diff_eq!(r[1], ((5. as f64).sqrt() + 1.) / 2.);
     }
 
     #[test]
@@ -695,6 +962,15 @@ mod tests {
     }
 
     #[test]
+    fn test_cuboctahedron_radii() {
+        let verts = cuboctahedron();
+        let r = radii(&verts);
+	let expected = 1.;
+        assert_abs_diff_eq!(r[0], expected);
+        assert_abs_diff_eq!(r[1], expected);
+    }
+
+    #[test]
     // 26 polys. 8 with 3 sides, and 18 with 4 sides.
     fn test_rhombicuboctahedron_size() {
         let verts = rhombicuboctahedron();
@@ -730,4 +1006,77 @@ mod tests {
         assert_abs_diff_eq!(r[0], 1.);
         assert_abs_diff_eq!(r[1], 1.);
     }
+
+    #[test]
+    fn test_rhombicuboctahedron_radii() {
+        let verts = rhombicuboctahedron();
+        let r = radii(&verts);
+	let expected = 1.3989663259659066;
+        assert_abs_diff_eq!(r[0], expected);
+        assert_abs_diff_eq!(r[1], expected);
+    }
 }
+
+fn generate_tetrahedron_mesh(l: f64, sm: SizeMode) -> (Vec<[f64;3]>, Vec<Vec<usize>>) {
+    let s = 0.5 * l;
+    let v = vec![
+        [ s, s,-s],
+        [-s, s, s],
+        [-s,-s,-s],
+        [ s,-s, s] ];
+
+    let p = vec![
+	vec![2, 1, 0],
+	vec![2, 0, 3],
+	vec![3, 0, 1],
+	vec![3, 1, 2] ];
+
+    (v, p)
+}
+
+fn generate_cube_mesh(l: f64, sm: SizeMode) -> (Vec<[f64;3]>, Vec<Vec<usize>>) {
+    let s = 0.5 * l;
+    let v = vec![
+        [-s,-s,-s],
+        [ s,-s,-s],
+        [-s, s,-s],
+        [ s, s,-s],
+        [-s,-s, s],
+        [ s,-s, s],
+        [-s, s, s],
+        [ s, s, s] ];
+
+    let p = vec![
+	vec![4, 5, 7, 6],
+	vec![5, 1, 3, 7],
+	vec![1, 0, 2, 3],
+	vec![0, 4, 6, 2],
+	vec![6, 7, 3, 2],
+	vec![0, 1, 5, 4] ];
+
+    (v, p)
+}
+
+fn generate_octahedron_mesh(l: f64, sm: SizeMode) -> (Vec<[f64;3]>, Vec<Vec<usize>>) {
+    let s = 0.5 * l;
+    let v = vec![
+        [-s,0.,0.],
+        [ s,0.,0.],
+        [0.,-s,0.],
+        [0., s,0.],
+        [0.,0.,-s],
+        [0.,0., s] ];
+
+    let p = vec![
+	vec![2, 1, 5],
+	vec![2, 4, 1],
+	vec![2, 0, 4],
+	vec![2, 5, 0],
+	vec![1, 3, 5],
+	vec![5, 3, 0],
+	vec![0, 3, 4],
+	vec![4, 3, 1] ];
+
+    (v, p)
+}
+
