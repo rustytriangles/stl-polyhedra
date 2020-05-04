@@ -478,6 +478,100 @@ pub fn rhombicuboctahedron() -> Vec<Vec<[f64; 3]>> {
     ].to_vec()
 }
 
+// This one is kind of strange. It's not actually a truncated cuboctahedron, but
+// that's the conventional name for it. If you actually do a trunction on a
+// cuboctahedron, you'll see that you can't get things to work out so that the
+// polygons are regular. But, you can arrange a set of regular polygons in the
+// same pattern as a truncated cuboctahedron. It's just that the angles are all
+// a bit different. That's this object.
+pub fn truncated_cuboctahedron() -> Vec<Vec<[f64; 3]>> {
+    let p = 1. / 2.;
+    let q = (1. + (2. as f64).sqrt()) / 2.;
+    let r = (1. + 2. * (2. as f64).sqrt()) / 2.;
+
+    let v = [
+	[-p,-q,-r],
+	[ p,-q,-r],
+	[-p, q,-r],
+	[ p, q,-r],
+	[-p,-q, r],
+	[ p,-q, r],
+	[-p, q, r],
+	[ p, q, r],
+	[-p,-r,-q],
+	[ p,-r,-q],
+	[-p,-r, q],
+	[ p,-r, q],
+	[-p, r,-q],
+	[ p, r,-q],
+	[-p, r, q],
+	[ p, r, q],
+	[-q,-p,-r],
+	[-q, p,-r],
+	[ q,-p,-r],
+	[ q, p,-r],
+	[-q,-p, r],
+	[-q, p, r],
+	[ q,-p, r],
+	[ q, p, r],
+	[-q,-r,-p],
+	[-q,-r, p],
+	[ q,-r,-p],
+	[ q,-r, p],
+	[-q, r,-p],
+	[-q, r, p],
+	[ q, r,-p],
+	[ q, r, p],
+	[-r,-p,-q],
+	[-r, p,-q],
+	[-r,-p, q],
+	[-r, p, q],
+	[ r,-p,-q],
+	[ r, p,-q],
+	[ r,-p, q],
+	[ r, p, q],
+	[-r,-q,-p],
+	[-r,-q, p],
+	[-r, q,-p],
+	[-r, q, p],
+	[ r,-q,-p],
+	[ r,-q, p],
+	[ r, q,-p],
+	[ r, q, p],
+
+    ];
+
+    vec![
+	vec![v[32], v[40], v[41], v[34], v[35], v[43], v[42], v[33]],
+	vec![v[37], v[46], v[47], v[39], v[38], v[45], v[44], v[36]],
+	vec![v[ 8], v[ 9], v[26], v[27], v[11], v[10], v[25], v[24]],
+	vec![v[13], v[12], v[28], v[29], v[14], v[15], v[31], v[30]],
+	vec![v[16], v[17], v[ 2], v[ 3], v[19], v[18], v[ 1], v[ 0]],
+	vec![v[21], v[20], v[ 4], v[ 5], v[22], v[23], v[ 7], v[ 6]],
+	vec![v[20], v[34], v[41], v[25], v[10], v[ 4]],
+	vec![v[32], v[16], v[ 0], v[ 8], v[24], v[40]],
+	vec![v[42], v[28], v[12], v[ 2], v[17], v[33]],
+	vec![v[ 5], v[11], v[27], v[45], v[38], v[22]],
+	vec![v[ 6], v[14], v[29], v[43], v[35], v[21]],
+	vec![v[ 3], v[13], v[30], v[46], v[37], v[19]],
+	vec![v[44], v[26], v[ 9], v[ 1], v[18], v[36]],
+	vec![v[23], v[39], v[47], v[31], v[15], v[ 7]],
+	vec![v[ 1], v[ 9], v[ 8], v[ 0]],
+	vec![v[ 4], v[10], v[11], v[ 5]],
+	vec![v[33], v[17], v[16], v[32]],
+	vec![v[40], v[24], v[25], v[41]],
+	vec![v[21], v[35], v[34], v[20]],
+	vec![v[26], v[44], v[45], v[27]],
+	vec![v[ 2], v[12], v[13], v[ 3]],
+	vec![v[28], v[42], v[43], v[29]],
+	vec![v[14], v[ 6], v[ 7], v[15]],
+	vec![v[31], v[47], v[46], v[30]],
+	vec![v[36], v[18], v[19], v[37]],
+	vec![v[22], v[38], v[39], v[23]],
+    ]
+
+}
+
 pub fn triangulate(src: &Vec<[f64; 3]>) -> Vec<[f64; 3]> {
     let n = src.len();
     if n == 3 {
@@ -1055,6 +1149,55 @@ mod tests {
         let verts = rhombicuboctahedron();
         let r = radii(&verts);
 	let expected = 1.3989663259659066;
+        assert_abs_diff_eq!(r[0], expected);
+        assert_abs_diff_eq!(r[1], expected);
+    }
+
+    #[test]
+    // 26 polys. 8 with 3 sides, and 18 with 4 sides.
+    fn test_truncated_cuboctahedron_size() {
+        let verts = truncated_cuboctahedron();
+        assert_eq!(verts.len(), 26);
+
+        let mut num_squares = 0;
+        let mut num_hexes = 0;
+        let mut num_octs = 0;
+        for p in verts {
+            match p.len() {
+                4 => { num_squares += 1 }
+                6 => { num_hexes += 1 }
+                8 => { num_octs += 1 }
+                _ => { assert!(false) }
+            }
+        }
+        assert!(num_squares == 12);
+        assert!(num_hexes == 8);
+        assert!(num_octs == 6);
+    }
+
+    #[test]
+    fn test_truncated_cuboctahedron_orientation() {
+        let verts = truncated_cuboctahedron();
+        for p in verts {
+            let c = centroid(&p);
+            let n = normal(&p);
+            assert!(dot(c,n) > 0.);
+        }
+    }
+
+    #[test]
+    fn test_truncated_cuboctahedron_edgelength() {
+        let verts = truncated_cuboctahedron();
+        let r = edge_lengths(&verts);
+        assert_abs_diff_eq!(r[0], 1.);
+        assert_abs_diff_eq!(r[1], 1.);
+    }
+
+    #[test]
+    fn test_truncated_cuboctahedron_radii() {
+        let verts = truncated_cuboctahedron();
+        let r = radii(&verts);
+	let expected = 2.3176109128927664;
         assert_abs_diff_eq!(r[0], expected);
         assert_abs_diff_eq!(r[1], expected);
     }
