@@ -572,6 +572,82 @@ pub fn truncated_cuboctahedron() -> Vec<Vec<[f64; 3]>> {
 
 }
 
+pub fn icosidodecahedron() -> Vec<Vec<[f64; 3]>> {
+    let p = (1. + (5. as f64).sqrt())/2.;
+    let q = 0.5;
+    let r = p/2.;
+    let s = p*p/2.;
+
+    let v = [
+	[-p,0.,0.],
+	[ p,0.,0.],
+	[0.,-p,0.],
+	[0., p,0.],
+	[0.,0.,-p],
+	[0.,0., p],
+	[-s,-r,-q],
+	[ s,-r,-q],
+	[-s, r,-q],
+	[ s, r,-q],
+	[-s,-r, q],
+	[ s,-r, q],
+	[-s, r, q],
+	[ s, r, q],
+	[-r,-q,-s],
+	[-r,-q, s],
+	[ r,-q,-s],
+	[ r,-q, s],
+	[-r, q,-s],
+	[-r, q, s],
+	[ r, q,-s],
+	[ r, q, s],
+	[-q,-s,-r],
+	[-q, s,-r],
+	[-q,-s, r],
+	[-q, s, r],
+	[ q,-s,-r],
+	[ q, s,-r],
+	[ q,-s, r],
+	[ q, s, r],
+    ];
+
+    vec![
+	vec![v[ 0], v[ 8], v[18], v[14], v[ 6]],
+	vec![v[ 0], v[10], v[15], v[19], v[12]],
+	vec![v[ 1], v[ 7], v[16], v[20], v[ 9]],
+	vec![v[ 1], v[13], v[21], v[17], v[11]],
+	vec![v[ 2], v[24], v[10], v[ 6], v[22]],
+	vec![v[ 2], v[26], v[ 7], v[11], v[28]],
+	vec![v[ 3], v[23], v[ 8], v[12], v[25]],
+	vec![v[ 3], v[29], v[13], v[ 9], v[27]],
+	vec![v[ 4], v[16], v[26], v[22], v[14]],
+	vec![v[ 4], v[18], v[23], v[27], v[20]],
+	vec![v[ 5], v[15], v[24], v[28], v[17]],
+	vec![v[ 5], v[21], v[29], v[25], v[19]],
+	vec![v[ 0], v[12], v[ 8]],
+	vec![v[ 0], v[ 6], v[10]],
+	vec![v[ 1], v[11], v[ 7]],
+	vec![v[ 1], v[ 9], v[13]],
+	vec![v[ 2], v[28], v[24]],
+	vec![v[ 2], v[22], v[26]],
+	vec![v[ 3], v[27], v[23]],
+	vec![v[ 3], v[25], v[29]],
+	vec![v[ 4], v[20], v[16]],
+	vec![v[ 4], v[14], v[18]],
+	vec![v[ 5], v[19], v[15]],
+	vec![v[ 5], v[17], v[21]],
+
+	vec![v[ 6], v[14], v[22]],
+	vec![v[ 7], v[26], v[16]],
+	vec![v[ 8], v[23], v[18]],
+	vec![v[ 9], v[20], v[27]],
+	vec![v[10], v[24], v[15]],
+	vec![v[11], v[17], v[28]],
+	vec![v[12], v[19], v[25]],
+	vec![v[13], v[29], v[21]],
+    ]
+}
+
 pub fn triangulate(src: &Vec<[f64; 3]>) -> Vec<[f64; 3]> {
     let n = src.len();
     if n == 3 {
@@ -1201,6 +1277,54 @@ mod tests {
         assert_abs_diff_eq!(r[0], expected);
         assert_abs_diff_eq!(r[1], expected);
     }
+
+    #[test]
+    fn test_icosidodecahedron_size() {
+        let verts = icosidodecahedron();
+        assert_eq!(verts.len(), 32);
+
+        let mut num_tris = 0;
+        let mut num_pents = 0;
+        for p in verts {
+            match p.len() {
+                3 => { num_tris += 1 }
+                5 => { num_pents += 1 }
+                _ => { assert!(false) }
+            }
+        }
+        assert!(num_pents == 12);
+        assert!(num_tris == 20);
+    }
+
+    #[test]
+    fn test_icosidodecahedron_orientation() {
+        let verts = icosidodecahedron();
+        for p in verts {
+            let c = centroid(&p);
+            let n = normal(&p);
+            assert!(dot(c,n) > 0.);
+        }
+    }
+
+    #[test]
+    fn test_icosidodecahedron_edgelength() {
+        let verts = icosidodecahedron();
+        let r = edge_lengths(&verts);
+        assert_abs_diff_eq!(r[0], 1.);
+        assert_abs_diff_eq!(r[1], 1.);
+    }
+
+    #[test]
+    fn test_icosidodecahedron_radii() {
+        let verts = icosidodecahedron();
+        let r = radii(&verts);
+    	let expected =  (1. + (5. as f64).sqrt()) / 2.;
+        assert_abs_diff_eq!(r[0], expected);
+        assert_abs_diff_eq!(r[1], expected);
+    }
+
+
+
 }
 
 fn generate_tetrahedron_mesh(l: f64, sm: SizeMode) -> (Vec<[f64;3]>, Vec<Vec<usize>>) {
