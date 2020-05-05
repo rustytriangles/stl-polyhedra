@@ -58,95 +58,35 @@ pub fn octahedron() -> Vec<Vec<[f64; 3]>> {
 }
 
 pub fn icosahedron() -> Vec<Vec<[f64; 3]>> {
-    // edge length = 2.
-    let _radius_edgelen_ratio = 0.9510565162951535;
-    let r = 0.5;
-    let p = (1. + (5 as f64).sqrt()) / 4.;
-    let v = [
-        [ 0.,-r, -p],
-        [ 0., r, -p],
-        [ 0.,-r,  p],
-        [ 0., r,  p],
-        [-r, -p, 0.],
-        [ r, -p, 0.],
-        [-r,  p, 0.],
-        [ r,  p, 0.],
-        [ -p, 0.,-r],
-        [ -p, 0., r],
-        [  p, 0.,-r],
-        [  p, 0., r] ];
+    let edgelen_scale = 0.9510565162951535;
 
-    [ vec![v[ 3], v[ 2], v[11] ],
-      vec![v[ 3], v[11], v[ 7] ],
-      vec![v[ 3], v[ 7], v[ 6] ],
-      vec![v[ 3], v[ 6], v[ 9] ],
-      vec![v[ 3], v[ 9], v[ 2] ],
-      vec![v[ 2], v[ 5], v[11] ],
-      vec![v[ 5], v[10], v[11] ],
-      vec![v[11], v[10], v[ 7] ],
-      vec![v[10], v[ 1], v[ 7] ],
-      vec![v[ 7], v[ 1], v[ 6] ],
-      vec![v[ 1], v[ 8], v[ 6] ],
-      vec![v[ 6], v[ 8], v[ 9] ],
-      vec![v[ 8], v[ 4], v[ 9] ],
-      vec![v[ 9], v[ 4], v[ 2] ],
-      vec![v[ 4], v[ 5], v[ 2] ],
-      vec![v[ 0], v[ 1], v[10] ],
-      vec![v[ 0], v[10], v[ 5] ],
-      vec![v[ 0], v[ 5], v[ 4] ],
-      vec![v[ 0], v[ 4], v[ 8] ],
-      vec![v[ 0], v[ 8], v[ 1] ],
-    ].to_vec()
+    let (v, p) = generate_icosahedron_mesh(1., SizeMode::EDGELEN);
+
+    let mut ret = Vec::new();
+    for i in p {
+	let mut tmp = Vec::new();
+	for j in i {
+	    tmp.push(v[j]);
+	}
+	ret.push(tmp);
+    }
+    ret
 }
 
 pub fn dodecahedron() -> Vec<Vec<[f64; 3]>> {
-    // @todo clean this up
-    // edge length = (5. as f64).sqrt() - 1.
-    let _radius_edgelen_ratio = 1.4012585384440734;
-    let p = (1. + (5. as f64).sqrt()) / 2.;
-    let i = 1.0 / p;
+    let edgelen_scale = 1.;
 
-    let d = (5. as f64).sqrt() - 1.;
-    let r = 1. / d;
-    let q = p / d;
-    let s = i / d;
+    let (v, p) = generate_dodecahedron_mesh(edgelen_scale, SizeMode::EDGELEN);
 
-    let v = [
-        [-r,-r,-r],
-        [ r,-r,-r],
-        [-r, r,-r],
-        [ r, r,-r],
-        [-r,-r, r],
-        [ r,-r, r],
-        [-r, r, r],
-        [ r, r, r],
-        [0.,-q,-s],
-        [0., q,-s],
-        [0.,-q, s],
-        [0., q, s],
-        [-s,0.,-q],
-        [-s,0., q],
-        [ s,0.,-q],
-        [ s,0., q],
-        [-q,-s,0.],
-        [ q,-s,0.],
-        [-q, s,0.],
-        [ q, s,0.] ];
-
-
-    [ vec![v[10], v[ 5], v[15], v[13], v[ 4]],
-      vec![v[15], v[ 7], v[11], v[ 6], v[13]],
-      vec![v[ 5], v[17], v[19], v[ 7], v[15]],
-      vec![v[16], v[ 4], v[13], v[ 6], v[18]],
-      vec![v[14], v[ 1], v[ 8], v[ 0], v[12]],
-      vec![v[ 8], v[ 1], v[17], v[ 5], v[10]],
-      vec![v[ 1], v[14], v[ 3], v[19], v[17]],
-      vec![v[ 8], v[10], v[ 4], v[16], v[ 0]],
-      vec![v[ 9], v[ 3], v[14], v[12], v[ 2]],
-      vec![v[11], v[ 7], v[19], v[ 3], v[ 9]],
-      vec![v[ 6], v[11], v[ 9], v[ 2], v[18]],
-      vec![v[ 2], v[12], v[ 0], v[16], v[18]],
-    ].to_vec()
+    let mut ret = Vec::new();
+    for i in p {
+	let mut tmp = Vec::new();
+	for j in i {
+	    tmp.push(v[j]);
+	}
+	ret.push(tmp);
+    }
+    ret
 }
 
 pub fn rhombic_dodecahedron() -> Vec<Vec<[f64; 3]>> {
@@ -646,6 +586,107 @@ pub fn icosidodecahedron() -> Vec<Vec<[f64; 3]>> {
 	vec![v[12], v[19], v[25]],
 	vec![v[13], v[29], v[21]],
     ]
+}
+
+pub fn truncated_icosahedron() -> Vec<Vec<[f64; 3]>> {
+    let edgelen_scale = 3.;
+
+    let (v, p) = generate_icosahedron_mesh(edgelen_scale, SizeMode::EDGELEN);
+
+    let mut ret = Vec::new();
+    for l in p {
+	let mut hex = Vec::new();
+	hex.push(lerp(v[l[0]], v[l[1]], 1. / 3.));
+	hex.push(lerp(v[l[0]], v[l[1]], 2. / 3.));
+	hex.push(lerp(v[l[1]], v[l[2]], 1. / 3.));
+	hex.push(lerp(v[l[1]], v[l[2]], 2. / 3.));
+	hex.push(lerp(v[l[2]], v[l[0]], 1. / 3.));
+	hex.push(lerp(v[l[2]], v[l[0]], 2. / 3.));
+	ret.push(hex);
+    }
+
+    // order of the edges for the tri at each corner
+    let corners = [
+	[ 1,10, 5, 4, 8],
+	[ 0, 8, 6, 7,10],
+	[ 3, 9, 4, 5,11],
+	[ 2,11, 7, 6, 9],
+	[ 0, 5, 2, 9, 8],
+	[ 0,10,11, 2, 4],
+	[ 1, 8, 9, 3, 7],
+	[ 1, 6, 3,11,10],
+	[ 0, 4, 9, 6, 1],
+	[ 2, 3, 6, 8, 4],
+	[ 0, 1, 7,11, 5],
+	[ 2, 5,10, 7, 3],
+    ];
+    for i in 0..corners.len() {
+    	let mut tri = Vec::new();
+    	tri.push(lerp(v[i],v[corners[i][0]],1./3.));
+   	tri.push(lerp(v[i],v[corners[i][1]],1./3.));
+    	tri.push(lerp(v[i],v[corners[i][2]],1./3.));
+    	tri.push(lerp(v[i],v[corners[i][3]],1./3.));
+    	tri.push(lerp(v[i],v[corners[i][4]],1./3.));
+    	ret.push(tri);
+    }
+    ret
+}
+
+pub fn truncated_dodecahedron() -> Vec<Vec<[f64; 3]>> {
+    let edgelen_scale = 1. / 0.44721359549995787;
+
+    let (v, p) = generate_dodecahedron_mesh(edgelen_scale, SizeMode::EDGELEN);
+    let t1 = 0.276393202250021; // 1 / 2*(1 + cos(36))
+    let t2 = 1. - t1;
+
+    let mut ret = Vec::new();
+    for l in p {
+	let mut hex = Vec::new();
+	hex.push(lerp(v[l[0]], v[l[1]], t1));
+	hex.push(lerp(v[l[0]], v[l[1]], t2));
+	hex.push(lerp(v[l[1]], v[l[2]], t1));
+	hex.push(lerp(v[l[1]], v[l[2]], t2));
+	hex.push(lerp(v[l[2]], v[l[3]], t1));
+	hex.push(lerp(v[l[2]], v[l[3]], t2));
+	hex.push(lerp(v[l[3]], v[l[4]], t1));
+	hex.push(lerp(v[l[3]], v[l[4]], t2));
+	hex.push(lerp(v[l[4]], v[l[0]], t1));
+	hex.push(lerp(v[l[4]], v[l[0]], t2));
+	ret.push(hex);
+    }
+
+    // order of the edges for the tri at each corner
+    let corners = [
+	[ 8,16,12],
+	[ 8,14,17],
+	[18, 9,12],
+	[19,14, 9],
+	[16,10,13],
+	[15,10,17],
+	[13,11,18],
+	[11,15,19],
+	[ 0, 1,10],
+	[ 2,11, 3],
+	[ 4, 8, 5],
+	[ 6, 7, 9],
+	[ 2,14, 0],
+	[ 4,15, 6],
+	[ 3, 1,12],
+	[13, 5, 7],
+	[ 0, 4,18],
+	[19, 5, 1],
+	[16, 6, 2],
+	[ 7,17, 3],
+    ];
+
+    for i in 0..corners.len() {
+    	let mut tri = Vec::new();
+    	tri.push(lerp(v[i],v[corners[i][0]],t1));
+    	tri.push(lerp(v[i],v[corners[i][1]],t1));
+    	tri.push(lerp(v[i],v[corners[i][2]],t1));
+    	ret.push(tri);
+    }
+    ret
 }
 
 pub fn rhombicosidodecahedron() -> Vec<Vec<[f64; 3]>> {
@@ -1465,6 +1506,96 @@ mod tests {
         assert_abs_diff_eq!(r[1], expected);
     }
 
+    #[test]
+    fn test_truncated_icosahedron_size() {
+	let verts = truncated_icosahedron();
+        assert_eq!(verts.len(), 32);
+
+        let mut num_hexes = 0;
+        let mut num_pents = 0;
+        for p in verts {
+            match p.len() {
+                6 => { num_hexes += 1 }
+                5 => { num_pents += 1 }
+                _ => { assert!(false) }
+            }
+        }
+        assert!(num_pents == 12);
+        assert!(num_hexes == 20);
+    }
+
+    #[test]
+    fn test_truncated_icosahedron_orientation() {
+        let verts = truncated_icosahedron();
+        for p in verts {
+            let c = centroid(&p);
+            let n = normal(&p);
+            assert!(dot(c,n) > 0.);
+        }
+    }
+
+    #[test]
+    fn test_truncated_icosahedron_edgelength() {
+        let verts = truncated_icosahedron();
+        let r = edge_lengths(&verts);
+        assert_abs_diff_eq!(r[0], 1.);
+        assert_abs_diff_eq!(r[1], 1.);
+    }
+
+    #[test]
+    fn test_truncated_icosahedron_radii() {
+        let verts = truncated_icosahedron();
+        let r = radii(&verts);
+    	let expected = 2.4780186590676156;
+        assert_abs_diff_eq!(r[0], expected);
+        assert_abs_diff_eq!(r[1], expected);
+    }
+
+    #[test]
+    fn test_truncated_dodecahedron_size() {
+	let verts = truncated_dodecahedron();
+        assert_eq!(verts.len(), 32);
+
+        let mut num_decs = 0;
+        let mut num_tris = 0;
+        for p in verts {
+            match p.len() {
+                10 => { num_decs += 1 }
+                3 => { num_tris += 1 }
+                _ => { assert!(false) }
+            }
+        }
+        assert!(num_decs == 12);
+	assert!(num_tris == 20);
+    }
+
+    #[test]
+    fn test_truncated_dodecahedron_orientation() {
+        let verts = truncated_dodecahedron();
+        for p in verts {
+            let c = centroid(&p);
+            let n = normal(&p);
+            assert!(dot(c,n) > 0.);
+        }
+    }
+
+    #[test]
+    fn test_truncated_dodecahedron_edgelength() {
+        let verts = truncated_dodecahedron();
+        let r = edge_lengths(&verts);
+        assert_abs_diff_eq!(r[0], 1.);
+        assert_abs_diff_eq!(r[1], 1.);
+    }
+
+    #[test]
+    fn test_truncated_dodecahedron_radii() {
+        let verts = truncated_dodecahedron();
+        let r = radii(&verts);
+    	let expected = 2.9694490158633986;
+	let tol = 1.0e-15;
+        assert_abs_diff_eq!(r[0], expected, epsilon = tol);
+        assert_abs_diff_eq!(r[1], expected, epsilon = tol);
+    }
 
     #[test]
     fn test_rhombicosidodecahedron_size() {
@@ -1575,6 +1706,99 @@ fn generate_octahedron_mesh(l: f64, sm: SizeMode) -> (Vec<[f64;3]>, Vec<Vec<usiz
 	vec![0, 3, 4],
 	vec![4, 3, 1] ];
 
+    (v, p)
+}
+
+fn generate_icosahedron_mesh(l: f64, sm: SizeMode) -> (Vec<[f64;3]>, Vec<Vec<usize>>) {
+    let r = l * 0.5;
+    let p = l * (1. + (5 as f64).sqrt()) / 4.;
+    let v = vec![
+        [ 0.,-r, -p],
+        [ 0., r, -p],
+        [ 0.,-r,  p],
+        [ 0., r,  p],
+        [-r, -p, 0.],
+        [ r, -p, 0.],
+        [-r,  p, 0.],
+        [ r,  p, 0.],
+        [ -p, 0.,-r],
+        [ -p, 0., r],
+        [  p, 0.,-r],
+        [  p, 0., r] ];
+
+    let p = vec![
+	vec![ 3, 2,11 ],
+	vec![ 3,11, 7 ],
+	vec![ 3, 7, 6 ],
+	vec![ 3, 6, 9 ],
+	vec![ 3, 9, 2 ],
+	vec![ 2, 5,11 ],
+	vec![ 5,10,11 ],
+	vec![11,10, 7 ],
+	vec![10, 1, 7 ],
+	vec![ 7, 1, 6 ],
+	vec![ 1, 8, 6 ],
+	vec![ 6, 8, 9 ],
+	vec![ 8, 4, 9 ],
+	vec![ 9, 4, 2 ],
+	vec![ 4, 5, 2 ],
+	vec![ 0, 1,10 ],
+	vec![ 0,10, 5 ],
+	vec![ 0, 5, 4 ],
+	vec![ 0, 4, 8 ],
+	vec![ 0, 8, 1 ],
+    ];
+    (v, p)
+}
+
+fn generate_dodecahedron_mesh(l: f64, sm: SizeMode) -> (Vec<[f64;3]>, Vec<Vec<usize>>) {
+    // @todo clean this up
+    // edge length = (5. as f64).sqrt() - 1.
+    let _radius_edgelen_ratio = 1.4012585384440734;
+    let p = (1. + (5. as f64).sqrt()) / 2.;
+    let i = 1.0 / p;
+
+    let d = (5. as f64).sqrt() - 1.;
+    let r = l / d;
+    let q = l * p / d;
+    let s = l * i / d;
+
+    let v = vec![
+        [-r,-r,-r],
+        [ r,-r,-r],
+        [-r, r,-r],
+        [ r, r,-r],
+        [-r,-r, r],
+        [ r,-r, r],
+        [-r, r, r],
+        [ r, r, r],
+        [0.,-q,-s],
+        [0., q,-s],
+        [0.,-q, s],
+        [0., q, s],
+        [-s,0.,-q],
+        [-s,0., q],
+        [ s,0.,-q],
+        [ s,0., q],
+        [-q,-s,0.],
+        [ q,-s,0.],
+        [-q, s,0.],
+        [ q, s,0.] ];
+
+    let p = vec![
+	vec![10, 5,15,13, 4],
+	vec![15, 7,11, 6,13],
+	vec![ 5,17,19, 7,15],
+	vec![16, 4,13, 6,18],
+	vec![14, 1, 8, 0,12],
+	vec![ 8, 1,17, 5,10],
+	vec![ 1,14, 3,19,17],
+	vec![ 8,10, 4,16, 0],
+	vec![ 9, 3,14,12, 2],
+	vec![11, 7,19, 3, 9],
+	vec![ 6,11, 9, 2,18],
+	vec![ 2,12, 0,16,18],
+    ];
     (v, p)
 }
 

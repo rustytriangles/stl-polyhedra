@@ -68,15 +68,15 @@ fn build_function_table() -> HashMap<String, fn() -> Vec<Vec<[f64;3]>>> {
 
     // Archimedean
     poly_fcns.insert("truncated_tetrahedron".to_string(), poly::truncated_tetrahedron);
-    poly_fcns.insert("cuboctahedron".to_string(), poly::cuboctahedron);
     poly_fcns.insert("truncated_cube".to_string(), poly::truncated_cube);
     poly_fcns.insert("truncated_octahedron".to_string(), poly::truncated_octahedron);
+    poly_fcns.insert("truncated_icosahedron".to_string(), poly::truncated_icosahedron);
+    poly_fcns.insert("truncated_dodecahedron".to_string(), poly::truncated_dodecahedron);
+    poly_fcns.insert("cuboctahedron".to_string(), poly::cuboctahedron);
     poly_fcns.insert("rhombicuboctahedron".to_string(), poly::rhombicuboctahedron);
     poly_fcns.insert("truncated_cuboctahedron".to_string(), poly::truncated_cuboctahedron);
     // snub cube (2?)
     poly_fcns.insert("icosidodecahedron".to_string(), poly::icosidodecahedron);
-    // truncated dodecahedron
-    // truncated icosahedron
     poly_fcns.insert("rhombicosidodecahedron".to_string(), poly::rhombicosidodecahedron);
     // truncated icosidodecahedron
     // snub dodecahedron (2?)
