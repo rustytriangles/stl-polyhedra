@@ -832,6 +832,119 @@ pub fn rhombicosidodecahedron() -> Vec<Vec<[f64; 3]>> {
 ]
 }
 
+pub fn snub_cube() -> Vec<Vec<[f64; 3]>> {
+    let t = 1.839286755214161; // tribonacci constant
+
+    let a = 1.;
+    let b = 1. / t;
+    let c = t;
+
+    // This one uses the even permutations with an even number of
+    // plus signs and the odd permutations with an odd number.
+    // There's a 2nd snub cube that uses the other vertices.
+    let v = vec![
+	// even permutations
+	[-a,-b,-c], //e ABC v00
+	[ a,-b,-c], //o
+	[-a, b,-c], //o
+	[ a, b,-c], //e     v03
+	[-a,-b, c], //o
+	[ a,-b, c], //e     v05
+	[-a, b, c], //e     v06
+	[ a, b, c], //o
+	[-c,-a,-b], //e CAB v08
+	[-c, a,-b], //o
+	[-c,-a, b], //o
+	[-c, a, b], //e     v11
+	[ c,-a,-b], //o
+	[ c, a,-b], //e     v13
+	[ c,-a, b], //e     v14
+	[ c, a, b], //o
+	[-b,-c,-a], //e BCA v16
+	[-b,-c, a], //o
+	[ b,-c,-a], //o
+	[ b,-c, a], //e     v19
+	[-b, c,-a], //o
+	[-b, c, a], //e     v21
+	[ b, c,-a], //e     v22
+	[ b, c, a], //o
+	// odd permutations
+	[-b,-a,-c], //e BAC
+	[-b, a,-c], //o     v25
+	[ b,-a,-c], //o     v26
+	[ b, a,-c], //e
+	[-b,-a, c], //o     v28
+	[-b, a, c], //e
+	[ b,-a, c], //e
+	[ b, a, c], //o     v31
+	[-a,-c,-b], //e ACB
+	[ a,-c,-b], //o     v33
+	[-a,-c, b], //o     v34
+	[ a,-c, b], //e
+	[-a, c,-b], //o     v36
+	[ a, c,-b], //e
+	[-a, c, b], //e
+	[ a, c, b], //o     v39
+	[-c,-b,-a], //e CBA
+	[-c,-b, a], //o     v41
+	[-c, b,-a], //o     v42
+	[-c, b, a], //e
+	[ c,-b,-a], //o     v44
+	[ c,-b, a], //e
+	[ c, b,-a], //e
+	[ c, b, a], //o     v47
+	];
+
+    vec![
+	vec![v[ 8], v[41], v[11], v[42]], // x = -c
+	vec![v[13], v[47], v[14], v[44]], // x = +c
+	vec![v[16], v[33], v[19], v[34]], // y = -c
+	vec![v[21], v[39], v[22], v[36]], // y = +c
+	vec![v[ 0], v[25], v[ 3], v[26]], // z = -c
+	vec![v[ 5], v[31], v[ 6], v[28]], // z = +c
+	// around square 0
+	vec![v[ 8], v[34], v[41]],
+	vec![v[41], v[ 6], v[11]],
+	vec![v[11], v[36], v[42]],
+	vec![v[42], v[ 0], v[ 8]],
+	// around square 1
+	vec![v[13], v[39], v[47]],
+	vec![v[47], v[ 5], v[14]],
+	vec![v[14], v[33], v[44]],
+	vec![v[44], v[ 3], v[13]],
+	// around square 2
+	vec![v[16], v[26], v[33]],
+	vec![v[33], v[14], v[19]],
+	vec![v[19], v[28], v[34]],
+	vec![v[34], v[ 8], v[16]],
+	// around square 3
+	vec![v[21], v[31], v[39]],
+	vec![v[39], v[13], v[22]],
+	vec![v[22], v[25], v[36]],
+	vec![v[36], v[11], v[21]],
+	// around square 4
+	vec![v[ 0], v[42], v[25]],
+	vec![v[25], v[22], v[ 3]],
+	vec![v[ 3], v[44], v[26]],
+	vec![v[26], v[16], v[ 0]],
+	// around square 5
+	vec![v[ 5], v[47], v[31]],
+	vec![v[31], v[21], v[ 6]],
+	vec![v[ 6], v[41], v[28]],
+	vec![v[28], v[19], v[ 5]],
+
+	// corners
+	vec![v[ 0], v[16], v[ 8]],
+	vec![v[11], v[ 6], v[21]],
+	vec![v[13], v[ 3], v[22]],
+	vec![v[14], v[ 5], v[19]],
+	vec![v[41], v[34], v[28]],
+	vec![v[42], v[36], v[25]],
+	vec![v[44], v[33], v[26]],
+	vec![v[47], v[39], v[31]],
+    ]
+}
+
 pub fn triangulate(src: &Vec<[f64; 3]>) -> Vec<[f64; 3]> {
     let n = src.len();
     if n == 3 {
@@ -1644,6 +1757,53 @@ mod tests {
         assert_abs_diff_eq!(r[0], expected);
         assert_abs_diff_eq!(r[1], expected);
     }
+
+    // #[test]
+    fn test_snub_cube_size() {
+    	let verts = snub_cube();
+        assert_eq!(verts.len(), 38);
+
+        let mut num_tris = 0;
+        let mut num_squares = 0;
+        for p in verts {
+            match p.len() {
+                3 => { num_tris += 1 }
+                4 => { num_squares += 1 }
+                _ => { assert!(false) }
+            }
+        }
+    	assert!(num_squares == 6);
+    	assert!(num_tris == 32);
+    }
+
+    #[test]
+    fn test_snub_cube_orientation() {
+        let verts = snub_cube();
+        for p in verts {
+            let c = centroid(&p);
+            let n = normal(&p);
+            assert!(dot(c,n) > 0.);
+        }
+    }
+
+    #[test]
+    fn test_snub_cube_edgelength() {
+        let verts = snub_cube();
+        let r = edge_lengths(&verts);
+	let expected = 1.6097190702244193;
+        assert_abs_diff_eq!(r[0], expected);
+        assert_abs_diff_eq!(r[1], expected);
+    }
+
+    #[test]
+    fn test_snub_cube_radii() {
+        let verts = snub_cube();
+        let r = radii(&verts);
+    	let expected = 2.1630010426322777;
+        assert_abs_diff_eq!(r[0], expected);
+        assert_abs_diff_eq!(r[1], expected);
+    }
+
 }
 
 fn generate_tetrahedron_mesh(l: f64, sm: SizeMode) -> (Vec<[f64;3]>, Vec<Vec<usize>>) {
