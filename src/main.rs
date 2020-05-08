@@ -81,6 +81,8 @@ fn build_function_table() -> HashMap<String, fn() -> Vec<Vec<[f64;3]>>> {
     // truncated icosidodecahedron
     // snub dodecahedron (2?)
 
+    poly_fcns.insert("stellated_dodecahedron".to_string(), poly::stellated_dodecahedron);
+
     poly_fcns
 }
 

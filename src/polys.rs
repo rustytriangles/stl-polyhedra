@@ -945,6 +945,33 @@ pub fn snub_cube() -> Vec<Vec<[f64; 3]>> {
     ]
 }
 
+// The "small" or "first" stellation of the dodecahedron.
+pub fn stellated_dodecahedron() -> Vec<Vec<[f64; 3]>> {
+    let edgelen_scale = 1.;
+
+    let (v, p) = generate_dodecahedron_mesh(edgelen_scale, SizeMode::EDGELEN);
+
+    let alt = edgelen_scale * 1.584599 / 1.236068;
+
+    let mut ret = Vec::new();
+    for l in p {
+	let pent = vec![v[l[0]], v[l[1]], v[l[2]], v[l[3]], v[l[4]]];
+	let c = centroid(&pent);
+	let n = normalized(normal(&pent));
+	let a = [c[0] + alt * n[0],
+		 c[1] + alt * n[1],
+		 c[2] + alt * n[2]];
+	for i in 0..5 {
+	    let mut hex = Vec::new();
+	    hex.push(pent[(i+1)%5]);
+	    hex.push(a);
+	    hex.push(pent[i]);
+	    ret.push(hex);
+	}
+    }
+    ret
+}
+
 pub fn triangulate(src: &Vec<[f64; 3]>) -> Vec<[f64; 3]> {
     let n = src.len();
     if n == 3 {
@@ -1020,6 +1047,12 @@ fn normal(src: &Vec<[f64; 3]>) -> [f64; 3] {
                                      (src[i][0] - src[j][0]) * (src[i][1] + src[j][1]));
     }
     [n[0], n[1], n[2]]
+}
+
+fn normalized(v: [f64; 3]) -> [f64;3] {
+    let l2 = dot(v, v);
+    let s = 1. / l2.sqrt();
+    [v[0] * s, v[1] * s, v[2] * s]
 }
 
 fn dot(a: [f64; 3], b: [f64; 3]) -> f64 {
@@ -1800,8 +1833,51 @@ mod tests {
         let verts = snub_cube();
         let r = radii(&verts);
     	let expected = 2.1630010426322777;
-        assert_abs_diff_eq!(r[0], expected);
-        assert_abs_diff_eq!(r[1], expected);
+	let tol = 1.0e-15;
+        assert_abs_diff_eq!(r[0], expected, epsilon = tol);
+        assert_abs_diff_eq!(r[1], expected, epsilon = tol);
+    }
+
+    // #[test]
+    fn test_stellated_dodecahedron_size() {
+    	let verts = stellated_dodecahedron();
+        assert_eq!(verts.len(), 60);
+
+        for p in verts {
+	    assert_eq!(p.len(), 3);
+        }
+    }
+
+    #[test]
+    fn test_stellated_dodecahedron_orientation() {
+        let verts = stellated_dodecahedron();
+        for p in verts {
+            let c = centroid(&p);
+            let n = normal(&p);
+            assert!(dot(c,n) > 0.);
+        }
+    }
+
+    #[test]
+    fn test_stellated_dodecahedron_edgelength() {
+        let verts = stellated_dodecahedron();
+        let r = edge_lengths(&verts);
+	let expected_min = 1.;
+	let expected_max = 1.5385211928812546;
+	let tol = 1.0e-15;
+        assert_abs_diff_eq!(r[0], expected_min, epsilon = tol);
+        assert_abs_diff_eq!(r[1], expected_max, epsilon = tol);
+    }
+
+    #[test]
+    fn test_stellated_dodecahedron_radii() {
+        let verts = stellated_dodecahedron();
+        let r = radii(&verts);
+    	let expected_min = 1.4012585384440734;
+    	let expected_max = 2.395483861345433;
+	let tol = 1.0e-15;
+        assert_abs_diff_eq!(r[0], expected_min, epsilon = tol);
+        assert_abs_diff_eq!(r[1], expected_max, epsilon = tol);
     }
 
 }
