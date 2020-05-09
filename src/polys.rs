@@ -3,6 +3,14 @@ enum SizeMode {
     RADIUS
 }
 
+fn phi() -> f64 {
+    (1. + (5. as f64).sqrt()) / 2.
+}
+
+fn tribonacci_constant() -> f64 {
+    (( 1. + (19. + 3. * (33. as f64).sqrt()).cbrt() +  (19. - 3.*(33. as f64).sqrt()).cbrt() ) / 3.)
+}
+
 pub fn tetrahedron() -> Vec<Vec<[f64; 3]>> {
     let _radius_scale = 2. / (3. as f64).sqrt();
     let edgelen_scale = (2. as f64).sqrt() / 2.;
@@ -58,9 +66,11 @@ pub fn octahedron() -> Vec<Vec<[f64; 3]>> {
 }
 
 pub fn icosahedron() -> Vec<Vec<[f64; 3]>> {
-    let edgelen_scale = 0.9510565162951535;
+    let _radius_scale = 4. / (10. + 2. * (5. as f64).sqrt()).sqrt();
+    let edgelen_scale = 1.;
 
-    let (v, p) = generate_icosahedron_mesh(1., SizeMode::EDGELEN);
+    let (v, p) = generate_icosahedron_mesh(edgelen_scale, SizeMode::EDGELEN);
+//    let (v, p) = generate_icosahedron_mesh(radius_scale, SizeMode::RADIUS);
 
     let mut ret = Vec::new();
     for i in p {
@@ -74,9 +84,11 @@ pub fn icosahedron() -> Vec<Vec<[f64; 3]>> {
 }
 
 pub fn dodecahedron() -> Vec<Vec<[f64; 3]>> {
+    let _radius_scale = 4. / ( (3. as f64).sqrt() * (1. + (5. as f64).sqrt()) );
     let edgelen_scale = 1.;
 
     let (v, p) = generate_dodecahedron_mesh(edgelen_scale, SizeMode::EDGELEN);
+//    let (v, p) = generate_dodecahedron_mesh(radius_scale, SizeMode::RADIUS);
 
     let mut ret = Vec::new();
     for i in p {
@@ -91,7 +103,7 @@ pub fn dodecahedron() -> Vec<Vec<[f64; 3]>> {
 
 pub fn rhombic_dodecahedron() -> Vec<Vec<[f64; 3]>> {
     // edge length = (3. as f64).sqrt() / 2.
-    let _radius_edgelen_ratio = 1.1547005383792517;
+//    let _radius_edgelen_ratio = 1.1547005383792517;
     let r = 2. / (3. as f64).sqrt();
     let p = r / 2.;
     let v = [
@@ -127,7 +139,7 @@ pub fn rhombic_dodecahedron() -> Vec<Vec<[f64; 3]>> {
 pub fn rhombic_triacontahedron() -> Vec<Vec<[f64; 3]>> {
     // @todo fix this
     // edge length = 1.06331351044005;
-    let _radius_edgelen_ratio = ((5. as f64).sqrt() + 1.) / 2.;
+//    let _radius_edgelen_ratio = ((5. as f64).sqrt() + 1.) / 2.;
     // i.e.(c0*c0 + c1*c1).sqrt();
     let s5 = (5. as f64).sqrt();
     let c0 = s5 / 4.;
@@ -203,11 +215,9 @@ pub fn rhombic_triacontahedron() -> Vec<Vec<[f64; 3]>> {
 }
 
 pub fn truncated_tetrahedron() -> Vec<Vec<[f64; 3]>> {
-    let _radius_scale = 2. / (3. as f64).sqrt();
     let edgelen_scale = 3. * (2. as f64).sqrt() / 2.;
 
     let (v, p) = generate_tetrahedron_mesh(edgelen_scale, SizeMode::EDGELEN);
-//    let (v, p) = generate_tetrahedron_mesh(radius_scale, SizeMode::RADIUS);
 
     let mut ret = Vec::new();
     for l in p {
@@ -272,11 +282,9 @@ pub fn cuboctahedron() -> Vec<Vec<[f64; 3]>> {
 }
 
 pub fn truncated_cube() -> Vec<Vec<[f64; 3]>> {
-    let _radius_scale = 2. / (3. as f64).sqrt();
-    let edgelen_scale = 3. * (2. as f64).sqrt() / 2.;
+    let edgelen_scale = 1. / ((2. as f64).sqrt() - 1.);
 
     let (v, p) = generate_cube_mesh(edgelen_scale, SizeMode::EDGELEN);
-//    let (v, p) = generate_cube_mesh(radius_scale, SizeMode::RADIUS);
 
     let s = (2. as f64).sqrt();
     let t1 = s / (2. + s + s);
@@ -317,11 +325,9 @@ pub fn truncated_cube() -> Vec<Vec<[f64; 3]>> {
 }
 
 pub fn truncated_octahedron() -> Vec<Vec<[f64; 3]>> {
-    let _radius_scale = 2. / (3. as f64).sqrt();
-    let edgelen_scale = 3. * (2. as f64).sqrt() / 2.;
+    let edgelen_scale = 3. * (2. as f64).sqrt();
 
     let (v, p) = generate_octahedron_mesh(edgelen_scale, SizeMode::EDGELEN);
-//    let (v, p) = generate_octahedron_mesh(radius_scale, SizeMode::RADIUS);
 
     let s = (2. as f64).sqrt();
     let t1 = 1. / 3.;
@@ -358,7 +364,6 @@ pub fn truncated_octahedron() -> Vec<Vec<[f64; 3]>> {
 }
 
 pub fn rhombicuboctahedron() -> Vec<Vec<[f64; 3]>> {
-    let _radius_edgelen_ratio = 1.3989663259659066;
     let q = (1. + (2. as f64).sqrt()) / 2.;
     let r = 0.5;
     let v = [
@@ -513,7 +518,7 @@ pub fn truncated_cuboctahedron() -> Vec<Vec<[f64; 3]>> {
 }
 
 pub fn icosidodecahedron() -> Vec<Vec<[f64; 3]>> {
-    let p = (1. + (5. as f64).sqrt())/2.;
+    let p = phi();
     let q = 0.5;
     let r = p/2.;
     let s = p*p/2.;
@@ -589,9 +594,11 @@ pub fn icosidodecahedron() -> Vec<Vec<[f64; 3]>> {
 }
 
 pub fn truncated_icosahedron() -> Vec<Vec<[f64; 3]>> {
+    let _radius_scale = 12. / (58. + 18.*(5. as f64).sqrt()).sqrt();
     let edgelen_scale = 3.;
 
     let (v, p) = generate_icosahedron_mesh(edgelen_scale, SizeMode::EDGELEN);
+//    let (v, p) = generate_icosahedron_mesh(radius_scale, SizeMode::RADIUS);
 
     let mut ret = Vec::new();
     for l in p {
@@ -690,7 +697,7 @@ pub fn truncated_dodecahedron() -> Vec<Vec<[f64; 3]>> {
 }
 
 pub fn rhombicosidodecahedron() -> Vec<Vec<[f64; 3]>> {
-    let phi = (1. + (5. as f64).sqrt())/2.;
+    let phi = phi();
 
     let q = 1. / 2.;
     let p2 = phi*phi / 2.;
@@ -833,11 +840,11 @@ pub fn rhombicosidodecahedron() -> Vec<Vec<[f64; 3]>> {
 }
 
 pub fn snub_cube() -> Vec<Vec<[f64; 3]>> {
-    let t = 1.839286755214161; // tribonacci constant
-
-    let a = 1.;
-    let b = 1. / t;
-    let c = t;
+    let edgelen_scale = 1. / 1.6097190702244193;
+    let t = tribonacci_constant();
+    let a = edgelen_scale;
+    let b = edgelen_scale / t;
+    let c = edgelen_scale * t;
 
     // This one uses the even permutations with an even number of
     // plus signs and the odd permutations with an odd number.
@@ -1128,7 +1135,7 @@ mod tests {
     fn test_tetrahedron_radii() {
         let verts = tetrahedron();
         let r = radii(&verts);
-	let expected = 0.6123724356957945;
+	let expected = (6. as f64).sqrt() / 4.;
         assert_abs_diff_eq!(r[0], expected);
         assert_abs_diff_eq!(r[1], expected);
     }
@@ -1241,7 +1248,7 @@ mod tests {
     fn test_icosahedron_radii() {
         let verts = icosahedron();
         let r = radii(&verts);
-	let expected = 0.9510565162951535;
+	let expected = (10. + 2. * (5. as f64).sqrt()).sqrt() / 4.;
         assert_abs_diff_eq!(r[0], expected);
         assert_abs_diff_eq!(r[1], expected);
     }
@@ -1278,7 +1285,7 @@ mod tests {
     fn test_dodecahedron_radii() {
         let verts = dodecahedron();
         let r = radii(&verts);
-	let expected = 1.4012585384440734;
+	let expected = ( (3. as f64).sqrt() * (1. + (5. as f64).sqrt()) ) / 4.;
         assert_abs_diff_eq!(r[0], expected);
         assert_abs_diff_eq!(r[1], expected);
     }
@@ -1324,7 +1331,7 @@ mod tests {
     fn test_truncated_tetrahedron_radii() {
         let verts = truncated_tetrahedron();
         let r = radii(&verts);
-	let expected = 1.1726039399558574;
+	let expected =  (22. as f64).sqrt() / 4.;
         assert_abs_diff_eq!(r[0], expected);
         assert_abs_diff_eq!(r[1], expected);
     }
@@ -1360,7 +1367,7 @@ mod tests {
     fn test_truncated_cube_edgelength() {
         let verts = truncated_cube();
         let r = edge_lengths(&verts);
-	let expected = 0.8786796564403572;
+	let expected = 1.;
 	let tol = 1.0e-15;
         assert_abs_diff_eq!(r[0], expected, epsilon = tol);
         assert_abs_diff_eq!(r[1], expected, epsilon = tol);
@@ -1370,9 +1377,10 @@ mod tests {
     fn test_truncated_truncated_cube_radii() {
         let verts = truncated_cube();
         let r = radii(&verts);
-	let expected = 1.5630161498399613;
-        assert_abs_diff_eq!(r[0], expected);
-        assert_abs_diff_eq!(r[1], expected);
+	let expected = (7. + 4. * (2. as f64).sqrt()).sqrt() / 2.;
+	let tol = 1.0e-15;
+        assert_abs_diff_eq!(r[0], expected, epsilon = tol);
+        assert_abs_diff_eq!(r[1], expected, epsilon = tol);
     }
 
     #[test]
@@ -1406,16 +1414,18 @@ mod tests {
     fn test_truncated_octahedron_edgelength() {
         let verts = truncated_octahedron();
         let r = edge_lengths(&verts);
-	let expected = 0.5;
-        assert_abs_diff_eq!(r[0], expected);
-        assert_abs_diff_eq!(r[1], expected);
+	let expected = 1.;
+	let tol = 1.0e-15;
+        assert_abs_diff_eq!(r[0], expected, epsilon = tol);
+        assert_abs_diff_eq!(r[1], expected, epsilon = tol);
     }
 
     #[test]
     fn test_truncated_truncated_octahedron_radii() {
         let verts = truncated_octahedron();
         let r = radii(&verts);
-	let expected = 0.790569415042095;
+//	let expected = (7. + 4. * (2. as f64).sqrt()).sqrt() / 2.;
+	let expected = 1.58113883008419;
         assert_abs_diff_eq!(r[0], expected);
         assert_abs_diff_eq!(r[1], expected);
     }
@@ -1579,7 +1589,7 @@ mod tests {
     fn test_rhombicuboctahedron_radii() {
         let verts = rhombicuboctahedron();
         let r = radii(&verts);
-	let expected = 1.3989663259659066;
+	let expected = (5. + 2. * (2. as f64).sqrt()).sqrt() / 2.;
         assert_abs_diff_eq!(r[0], expected);
         assert_abs_diff_eq!(r[1], expected);
     }
@@ -1628,7 +1638,7 @@ mod tests {
     fn test_truncated_cuboctahedron_radii() {
         let verts = truncated_cuboctahedron();
         let r = radii(&verts);
-	let expected = 2.3176109128927664;
+	let expected = (13. + 6. * (2. as f64).sqrt() ).sqrt() / 2.;
         assert_abs_diff_eq!(r[0], expected);
         assert_abs_diff_eq!(r[1], expected);
     }
@@ -1718,7 +1728,7 @@ mod tests {
     fn test_truncated_icosahedron_radii() {
         let verts = truncated_icosahedron();
         let r = radii(&verts);
-    	let expected = 2.4780186590676156;
+    	let expected = (58. + 18.*(5. as f64).sqrt()).sqrt() / 4.;
         assert_abs_diff_eq!(r[0], expected);
         assert_abs_diff_eq!(r[1], expected);
     }
@@ -1763,7 +1773,7 @@ mod tests {
     fn test_truncated_dodecahedron_radii() {
         let verts = truncated_dodecahedron();
         let r = radii(&verts);
-    	let expected = 2.9694490158633986;
+    	let expected = (74. + 30.*(5. as f64).sqrt()).sqrt() / 4.;
 	let tol = 1.0e-15;
         assert_abs_diff_eq!(r[0], expected, epsilon = tol);
         assert_abs_diff_eq!(r[1], expected, epsilon = tol);
@@ -1812,7 +1822,7 @@ mod tests {
     fn test_rhombicosidodecahedron_radii() {
         let verts = rhombicosidodecahedron();
         let r = radii(&verts);
-    	let expected = 2.2329505094156903;
+    	let expected = (11. + 4. * (5. as f64).sqrt()).sqrt()  / 2.;
         assert_abs_diff_eq!(r[0], expected);
         assert_abs_diff_eq!(r[1], expected);
     }
@@ -1849,7 +1859,7 @@ mod tests {
     fn test_snub_cube_edgelength() {
         let verts = snub_cube();
         let r = edge_lengths(&verts);
-	let expected = 1.6097190702244193;
+	let expected = 1.;
         assert_abs_diff_eq!(r[0], expected);
         assert_abs_diff_eq!(r[1], expected);
     }
@@ -1858,7 +1868,8 @@ mod tests {
     fn test_snub_cube_radii() {
         let verts = snub_cube();
         let r = radii(&verts);
-    	let expected = 2.1630010426322777;
+	let t = tribonacci_constant();
+    	let expected = ( ( 3. - t ) / ( 4. * ( 2. - t ) ) ).sqrt();
 	let tol = 1.0e-15;
         assert_abs_diff_eq!(r[0], expected, epsilon = tol);
         assert_abs_diff_eq!(r[1], expected, epsilon = tol);
