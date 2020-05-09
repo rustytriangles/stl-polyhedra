@@ -972,6 +972,32 @@ pub fn stellated_dodecahedron() -> Vec<Vec<[f64; 3]>> {
     ret
 }
 
+pub fn great_dodecahedron() -> Vec<Vec<[f64; 3]>> {
+    let edgelen_scale = 1.;
+
+    let (v, p) = generate_icosahedron_mesh(edgelen_scale, SizeMode::EDGELEN);
+
+
+    let alt = edgelen_scale * 0.190983 / 1.236068;
+    let mut ret = Vec::new();
+    for l in p {
+	let ico_tri = vec![v[l[0]], v[l[1]], v[l[2]]];
+	let c = centroid(&ico_tri);
+	let n = normalized(normal(&ico_tri));
+	let a = [c[0] - alt * n[0],
+		 c[1] - alt * n[1],
+		 c[2] - alt * n[2]];
+	for i in 0..3 {
+	    let mut tri = Vec::new();
+	    tri.push(ico_tri[i]);
+	    tri.push(ico_tri[(i+1)%3]);
+	    tri.push(a);
+	    ret.push(tri);
+	}
+    }
+    ret
+}
+
 pub fn triangulate(src: &Vec<[f64; 3]>) -> Vec<[f64; 3]> {
     let n = src.len();
     if n == 3 {
@@ -1875,6 +1901,48 @@ mod tests {
         let r = radii(&verts);
     	let expected_min = 1.4012585384440734;
     	let expected_max = 2.395483861345433;
+	let tol = 1.0e-15;
+        assert_abs_diff_eq!(r[0], expected_min, epsilon = tol);
+        assert_abs_diff_eq!(r[1], expected_max, epsilon = tol);
+    }
+
+    // #[test]
+    fn test_great_dodecahedron_size() {
+    	let verts = great_dodecahedron();
+        assert_eq!(verts.len(), 60);
+
+        for p in verts {
+	    assert_eq!(p.len(), 3);
+        }
+    }
+
+    #[test]
+    fn test_great_dodecahedron_orientation() {
+        let verts = great_dodecahedron();
+        for p in verts {
+            let c = centroid(&p);
+            let n = normal(&p);
+            assert!(dot(c,n) > 0.);
+        }
+    }
+
+    #[test]
+    fn test_great_dodecahedron_edgelength() {
+        let verts = great_dodecahedron();
+        let r = edge_lengths(&verts);
+	let expected_min = 0.5976673044103078;
+	let expected_max = 1.;
+	let tol = 1.0e-15;
+        assert_abs_diff_eq!(r[0], expected_min, epsilon = tol);
+        assert_abs_diff_eq!(r[1], expected_max, epsilon = tol);
+    }
+
+    #[test]
+    fn test_great_dodecahedron_radii() {
+        let verts = great_dodecahedron();
+        let r = radii(&verts);
+    	let expected_min = 0.6012528242519862;
+    	let expected_max = 0.9510565162951535;
 	let tol = 1.0e-15;
         assert_abs_diff_eq!(r[0], expected_min, epsilon = tol);
         assert_abs_diff_eq!(r[1], expected_max, epsilon = tol);

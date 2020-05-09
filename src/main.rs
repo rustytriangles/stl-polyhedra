@@ -144,6 +144,7 @@ fn build_function_table() -> HashMap<String, fn() -> Vec<Vec<[f64;3]>>> {
     // snub dodecahedron (2?)
 
     poly_fcns.insert("stellated_dodecahedron".to_string(), poly::stellated_dodecahedron);
+    poly_fcns.insert("great_dodecahedron".to_string(), poly::great_dodecahedron);
 
     poly_fcns
 }
