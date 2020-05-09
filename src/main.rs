@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate approx;
 extern crate clap;
+use byteorder::{LittleEndian, WriteBytesExt};
 use clap::{Arg, App};
 use std::collections::HashMap;
 use std::error::Error;
@@ -47,6 +48,67 @@ mod stl {
         }
         let ftr = format!("endsolid {}\n", solidname);
         file.write(ftr.as_bytes())?;
+        Ok(())
+    }
+
+
+    pub fn write_binary(polys: Vec<Vec<[f64; 3]>>,
+                       filename: &String,
+			solidname: &String) -> std::io::Result<()> {
+        let path = Path::new(&filename);
+        let mut file = match File::create(&path) {
+            Err(why) => panic!("Couldn't open {}: {}",
+                               path.display(),
+                               why.description()),
+            Ok(file) => file,
+        };
+
+	// UINT8[80] - Header
+	let hdr: [u8; 80] = ['x' as u8; 80];
+        file.write_all(&hdr)?;
+
+	let mut tris: Vec<[f32; 3]> = Vec::new();
+        for p in polys {
+            let t = poly::triangulate(&p);
+            for i in (0..t.len()).step_by(3) {
+                for j in 0..3 {
+		    tris.push([t[i+j][0] as f32,
+			       t[i+j][1] as f32,
+			       t[i+j][2] as f32]);
+		}
+	    }
+	}
+
+	// UINT32 - Number of triangles
+	let mut num_tris = vec![];
+	num_tris.write_u32::<LittleEndian>((tris.len() / 3) as u32).unwrap();
+        file.write_all(&num_tris)?;
+
+	// foreach triangle
+	// REAL32[3] - Normal vector
+	// REAL32[3] - Vertex 1
+	// REAL32[3] - Vertex 2
+	// REAL32[3] - Vertex 3
+	// UINT16 - Attribute byte count
+	// end
+        for i in (0..tris.len()).step_by(3) {
+	    let mut normal = vec![];
+	    normal.write_f32::<LittleEndian>(0.0).unwrap();
+	    normal.write_f32::<LittleEndian>(0.0).unwrap();
+	    normal.write_f32::<LittleEndian>(1.0).unwrap();
+	    file.write_all(&normal)?;
+
+	    let mut verts = vec![];
+            for j in 0..3 {
+		verts.write_f32::<LittleEndian>(tris[i+j][0]).unwrap();
+		verts.write_f32::<LittleEndian>(tris[i+j][1]).unwrap();
+		verts.write_f32::<LittleEndian>(tris[i+j][2]).unwrap();
+	    }
+	    file.write_all(&verts)?;
+
+	    let attr_byte_count: [u8; 2] = [0, 0];
+            file.write_all(&attr_byte_count)?;
+	}
         Ok(())
     }
 }
@@ -108,6 +170,10 @@ fn process_args() -> clap::ArgMatches<'static> {
              .short("l")
              .long("list")
              .help("Prints list of supported polyhedra"))
+        .arg(Arg::with_name("binary")
+             .short("b")
+             .long("binary")
+             .help("Create binary STL file"))
         .get_matches();
     matches
 }
@@ -138,6 +204,10 @@ fn main() {
             }
         };
 
-        let _ = stl::write_ascii(verts, &filename, &poly_name);
+	if matches.is_present("binary") {
+            let _ = stl::write_binary(verts, &filename, &poly_name);
+	} else {
+            let _ = stl::write_ascii(verts, &filename, &poly_name);
+	}
     }
 }
