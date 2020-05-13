@@ -1005,6 +1005,32 @@ pub fn great_dodecahedron() -> Vec<Vec<[f64; 3]>> {
     ret
 }
 
+pub fn small_triambic_icosahedron() -> Vec<Vec<[f64; 3]>> {
+    let edgelen_scale = 1.;
+
+    let (v, p) = generate_icosahedron_mesh(edgelen_scale, SizeMode::EDGELEN);
+
+    let alt = edgelen_scale * (15 as f64).sqrt() / 15.;
+
+    let mut ret = Vec::new();
+    for l in p {
+	let tri = vec![v[l[0]], v[l[1]], v[l[2]]];
+	let c = centroid(&tri);
+	let n = normalized(normal(&tri));
+	let a = [c[0] + alt * n[0],
+		 c[1] + alt * n[1],
+		 c[2] + alt * n[2]];
+	for i in 0..3 {
+	    let mut side = Vec::new();
+	    side.push(tri[(i+1)%3]);
+	    side.push(a);
+	    side.push(tri[i]);
+	    ret.push(side);
+	}
+    }
+    ret
+}
+
 pub fn triangulate(src: &Vec<[f64; 3]>) -> Vec<[f64; 3]> {
     let n = src.len();
     if n == 3 {
@@ -1954,6 +1980,49 @@ mod tests {
         let r = radii(&verts);
     	let expected_min = 0.6012528242519862;
     	let expected_max = 0.9510565162951535;
+	let tol = 1.0e-15;
+        assert_abs_diff_eq!(r[0], expected_min, epsilon = tol);
+        assert_abs_diff_eq!(r[1], expected_max, epsilon = tol);
+    }
+
+
+    // #[test]
+    fn test_small_triambic_icosahedron_size() {
+    	let verts = small_triambic_icosahedron();
+        assert_eq!(verts.len(), 60);
+
+        for p in verts {
+	    assert_eq!(p.len(), 3);
+        }
+    }
+
+    #[test]
+    fn test_small_triambic_icosahedron_orientation() {
+        let verts = small_triambic_icosahedron();
+        for p in verts {
+            let c = centroid(&p);
+            let n = normal(&p);
+            assert!(dot(c,n) > 0.);
+        }
+    }
+
+    #[test]
+    fn test_small_triambic_icosahedron_edgelength() {
+        let verts = small_triambic_icosahedron();
+        let r = edge_lengths(&verts);
+	let expected_min = 0.6324555320336759;
+	let expected_max = 1.;
+	let tol = 1.0e-15;
+        assert_abs_diff_eq!(r[0], expected_min, epsilon = tol);
+        assert_abs_diff_eq!(r[1], expected_max, epsilon = tol);
+    }
+
+    #[test]
+    fn test_small_triambic_icosahedron_radii() {
+        let verts = small_triambic_icosahedron();
+        let r = radii(&verts);
+    	let expected_min = 0.9510565162951535;
+    	let expected_max = 1.013960203823332;
 	let tol = 1.0e-15;
         assert_abs_diff_eq!(r[0], expected_min, epsilon = tol);
         assert_abs_diff_eq!(r[1], expected_max, epsilon = tol);
